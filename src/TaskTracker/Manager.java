@@ -8,7 +8,7 @@ public class Manager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
-    private Integer id = 0;
+    private Integer id = 1;
 
     private Integer getNewId() {
         return id++;

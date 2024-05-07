@@ -8,7 +8,7 @@ public class Epic extends Task {
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
 
     public Epic( String name, String description) {
-        super(description, name);
+        super(name, description);
     }
 
     public void addSubtask(Subtask newSubtask) {
