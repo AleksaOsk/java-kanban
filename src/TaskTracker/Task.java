@@ -3,10 +3,10 @@ package TaskTracker;
 import java.util.Objects;
 
 public class Task {
-    protected String name;
-    protected String description;
-    protected Integer id;
-    protected Status status;
+    private String name;
+    private String description;
+    private Integer id;
+    private Status status;
 
     public Task(String name, String description) {
         this.description = description;

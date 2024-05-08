@@ -2,6 +2,7 @@ package TaskTracker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Epic extends Task {
 
@@ -35,9 +36,10 @@ public class Epic extends Task {
 
     public void updateStatus() {
         if (subtasks.isEmpty()) {
-            status = Status.NEW;
+            setStatus(Status.NEW);
             return;
         }
+
 
         int countDone = 0;
         int countNew = 0;
@@ -51,22 +53,36 @@ public class Epic extends Task {
         }
 
         if (countDone == subtasks.size()) {
-            status = Status.DONE;
+            setStatus(Status.DONE);
         } else if (countNew == subtasks.size()) {
-            status = Status.NEW;
+            setStatus(Status.NEW);
         } else {
-            status = Status.IN_PROGRESS;
+            setStatus(Status.IN_PROGRESS);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Epic epic = (Epic) o;
+        return Objects.equals(subtasks, epic.subtasks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), subtasks);
     }
 
     @Override
     public String toString() {
         return "Epic{" +
                 "subtasks=" + subtasks +
-                ", name='" + name + '\'' +
-                ", description='" + description.length() + '\'' +
-                ", id=" + id +
-                ", status=" + status +
+                ", name='" + getName() + '\'' +
+                ", description='" + getStatus() + '\'' +
+                ", id=" + getId() +
+                ", status=" + getStatus() +
                 '}';
     }
 }
