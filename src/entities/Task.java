@@ -1,4 +1,4 @@
-package TaskTracker;
+package entities;
 
 import java.util.Objects;
 
@@ -8,10 +8,16 @@ public class Task {
     private Integer id;
     private Status status;
 
-    public Task(String name, String description) {
+    public Task(String description, String name) {
         this.description = description;
         this.name = name;
         this.status = Status.NEW;
+    }
+
+    public Task(Task task) {
+        this(task.description, task.name);
+        this.status = task.status;
+        this.id = task.id;
     }
 
     public Integer getId() {
@@ -34,16 +40,16 @@ public class Task {
         return status;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     @Override
@@ -63,7 +69,7 @@ public class Task {
     public String toString() {
         return "Task{" +
                 "name='" + name + '\'' +
-                ", description='" + description.length() + '\'' +
+                ", description='" + description + '\'' +
                 ", id=" + id +
                 ", status=" + status +
                 '}';

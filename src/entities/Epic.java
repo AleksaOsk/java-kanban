@@ -1,15 +1,41 @@
-package TaskTracker;
+package entities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
+import java.util.Map;
 
 public class Epic extends Task {
 
-    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    private final HashMap<Integer, Subtask> subtasks;
 
-    public Epic( String name, String description) {
-        super(name, description);
+    public Epic(String name, String description) {
+        super(description, name);
+        subtasks = new HashMap<>();
+    }
+
+    public Epic(Epic epic) {
+        super(epic);
+        this.subtasks = deepCopyHashMap(epic);
+    }
+
+    private HashMap<Integer, Subtask> deepCopyHashMap(Epic epic) {
+        HashMap<Integer, Subtask> map = new HashMap<>();
+
+        for(Map.Entry<Integer, Subtask> entry: epic.subtasks.entrySet()) {
+            map.put(entry.getKey(), new Subtask(entry.getValue()));
+        }
+
+        return map;
+    }
+
+    private ArrayList<Subtask> deepCopyArrayList() {
+        ArrayList<Subtask> arrayList = new ArrayList<>();
+
+        for (Subtask subtask: subtasks.values()) {
+            arrayList.add(new Subtask(subtask));
+        }
+
+        return arrayList;
     }
 
     public void addSubtask(Subtask newSubtask) {
@@ -23,7 +49,7 @@ public class Epic extends Task {
     }
 
     public ArrayList<Subtask> getSubtasks() {
-        return new ArrayList<>(subtasks.values());
+        return deepCopyArrayList();
     }
 
     public void removeSubtask(Integer id) {
@@ -34,12 +60,15 @@ public class Epic extends Task {
         subtasks.clear();
     }
 
+    @Override
+    public void setStatus(Status status) {}
+
     public void updateStatus() {
+        // Если список подзадач пуст, то ставим статус NEW и ничего не проверяем
         if (subtasks.isEmpty()) {
             setStatus(Status.NEW);
             return;
         }
-
 
         int countDone = 0;
         int countNew = 0;
@@ -59,20 +88,6 @@ public class Epic extends Task {
         } else {
             setStatus(Status.IN_PROGRESS);
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Epic epic = (Epic) o;
-        return Objects.equals(subtasks, epic.subtasks);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), subtasks);
     }
 
     @Override
