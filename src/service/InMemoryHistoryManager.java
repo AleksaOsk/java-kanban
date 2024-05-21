@@ -17,8 +17,8 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (task != null) {
             if (viewHistory.size() > HISTORY_LENGTH) {
                 viewHistory.removeFirst();
-                viewHistory.add(new Task(task));
             }
+            viewHistory.add(new Task(task));
         }
     }
 
