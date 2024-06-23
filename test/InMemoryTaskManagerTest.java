@@ -1,5 +1,3 @@
-package test;
-
 import entities.Epic;
 import entities.Subtask;
 import entities.Task;
@@ -19,7 +17,7 @@ public class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void SubtaskCanNotBeEpicToItself() {
+    public void subtaskCanNotBeEpicToItself() {
         Subtask subtask = manager.createSubtask(new Subtask("", "", 0));
         Assertions.assertNull(subtask.getId());
     }
