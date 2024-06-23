@@ -15,7 +15,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void checWhatOldVersionTaskDeleteToNewViewing() {
+    public void chekWhatOldVersionTaskDeleteToNewViewing() {
         Task task = new Task("1", "");
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId());
@@ -26,7 +26,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void checWhatByDeleteTaskAndDeleteFromHistory() {
+    public void chekWhatByDeleteTaskAndDeleteFromHistory() {
         Task task = new Task("1", "");
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId());
@@ -38,7 +38,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void checWhatTaskAddToHistory() {
+    public void chekWhatTaskAddToHistory() {
         Task task = new Task("1", "");
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId());
