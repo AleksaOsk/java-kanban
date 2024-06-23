@@ -12,9 +12,10 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     public void linkLast(Task task) {
         final Node<Task> exTail = tail;
-        final Node<Task> newNode = new Node<>(exTail, task, null);
+        final Node<Task> newNode = new Node<Task>(exTail, task, null);
         tail = newNode;
 
+        viewHistory.put(task.getId(), newNode);
         if (exTail == null) {
             head = newNode;
         } else {
