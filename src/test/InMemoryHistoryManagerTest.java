@@ -11,47 +11,41 @@ import util.Managers;
 
 public class InMemoryHistoryManagerTest {
 
-    private TaskManager manager;
+    private TaskManager taskManager;
 
     @BeforeEach
     public void init() {
-        manager = Managers.getDefault();
+        taskManager = Managers.getDefault();
     }
 
     @Test
-    public void checkThatEpicDoesNotChangeInHistory() {
-        Epic epic = manager.createEpic(new Epic("a", ""));
-        manager.getEpicById(epic.getId());
-        epic.setName("b");
-        manager.updateEpic(epic);
-
-        Assertions.assertNotEquals(
-                manager.getHistory().getFirst().getName(),
-                manager.getEpicById(epic.getId()).getName());
+    public void checWhatOldVersionTaskDeleteToNewViewing() {
+        Task task = new Task("1", "");
+        taskManager.createTask(task);
+        taskManager.getTaskById(task.getId());
+        task.setName("2");
+        taskManager.updateTask(task);
+        taskManager.getTaskById(task.getId());
+        Assertions.assertEquals(taskManager.getHistory().get(0).getName(), task.getName());
     }
 
     @Test
-    public void checkThatSubtaskDoesNotChangeInHistory() {
-        Epic epic = manager.createEpic(new Epic("", ""));
-        Subtask subtask = manager.createSubtask(new Subtask("a", "", epic.getId()));
-        manager.getSubtaskById(subtask.getId());
-        subtask.setName("b");
-        manager.updateSubtask(subtask);
-
-        Assertions.assertNotEquals(
-                manager.getHistory().getFirst().getName(),
-                manager.getSubtaskById(subtask.getId()).getName());
+    public void checWhatByDeleteTaskAndDeleteFromHistory() {
+        Task task = new Task("1", "");
+        taskManager.createTask(task);
+        taskManager.getTaskById(task.getId());
+        Task task2 = new Task("2", "");
+        taskManager.createTask(task2);
+        taskManager.getTaskById(task2.getId());
+        taskManager.removeTaskById(task.getId());
+        Assertions.assertNotEquals(taskManager.getHistory().get(0), task);
     }
 
     @Test
-    public void checkThatTaskDoesNotChangeInHistory() {
-        Task task = manager.createTask(new Task("a", ""));
-        manager.getTaskById(task.getId());
-        task.setName("b");
-        manager.updateTask(task);
-
-        Assertions.assertNotEquals(
-                manager.getHistory().getFirst().getName(),
-                manager.getTaskById(task.getId()).getName());
+    public void checWhatTaskAddToHistory() {
+        Task task = new Task("1", "");
+        taskManager.createTask(task);
+        taskManager.getTaskById(task.getId());
+        Assertions.assertEquals(taskManager.getHistory().get(0), task);
     }
 }
