@@ -22,7 +22,7 @@ public class InMemoryHistoryManagerTest {
         task.setName("2");
         taskManager.updateTask(task);
         taskManager.getTaskById(task.getId());
-        Assertions.assertEquals(taskManager.getHistory().get(0).getName(), task.getName());
+        Assertions.assertEquals(taskManager.getHistory().getFirst().getName(), task.getName());
     }
 
     @Test
@@ -34,7 +34,7 @@ public class InMemoryHistoryManagerTest {
         taskManager.createTask(task2);
         taskManager.getTaskById(task2.getId());
         taskManager.removeTaskById(task.getId());
-        Assertions.assertNotEquals(taskManager.getHistory().get(0), task);
+        Assertions.assertNotEquals(taskManager.getHistory().getFirst(), task);
     }
 
     @Test
@@ -42,6 +42,6 @@ public class InMemoryHistoryManagerTest {
         Task task = new Task("1", "");
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId());
-        Assertions.assertEquals(taskManager.getHistory().get(0), task);
+        Assertions.assertEquals(taskManager.getHistory().getFirst(), task);
     }
 }
