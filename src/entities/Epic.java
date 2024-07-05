@@ -21,7 +21,7 @@ public class Epic extends Task {
     private HashMap<Integer, Subtask> deepCopyHashMap(Epic epic) {
         HashMap<Integer, Subtask> map = new HashMap<>();
 
-        for(Map.Entry<Integer, Subtask> entry: epic.subtasks.entrySet()) {
+        for (Map.Entry<Integer, Subtask> entry : epic.subtasks.entrySet()) {
             map.put(entry.getKey(), new Subtask(entry.getValue()));
         }
 
@@ -31,7 +31,7 @@ public class Epic extends Task {
     private ArrayList<Subtask> deepCopyArrayList() {
         ArrayList<Subtask> arrayList = new ArrayList<>();
 
-        for (Subtask subtask: subtasks.values()) {
+        for (Subtask subtask : subtasks.values()) {
             arrayList.add(new Subtask(subtask));
         }
 
@@ -61,7 +61,8 @@ public class Epic extends Task {
     }
 
     @Override
-    public void setStatus(Status status) {}
+    public void setStatus(Status status) {
+    }
 
     public void updateStatus() {
         // Если список подзадач пуст, то ставим статус NEW и ничего не проверяем
@@ -73,7 +74,7 @@ public class Epic extends Task {
         int countDone = 0;
         int countNew = 0;
 
-        for (Subtask subtask: subtasks.values()) {
+        for (Subtask subtask : subtasks.values()) {
             if (subtask.getStatus() == Status.NEW) {
                 countNew++;
             } else if (subtask.getStatus() == Status.DONE) {

@@ -1,5 +1,3 @@
-package test;
-
 import entities.Task;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
