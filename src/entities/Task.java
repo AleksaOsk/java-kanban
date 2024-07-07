@@ -8,14 +8,14 @@ public class Task {
     private Integer id;
     private Status status;
 
-    public Task(String description, String name) {
+    public Task(String name, String description) {
         this.description = description;
         this.name = name;
         this.status = Status.NEW;
     }
 
     public Task(Task task) {
-        this(task.description, task.name);
+        this(task.name, task.description);
         this.status = task.status;
         this.id = task.id;
     }
@@ -68,9 +68,9 @@ public class Task {
     @Override
     public String toString() {
         return "Task{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", id=" + id +
                 ", status=" + status +
                 '}';
     }

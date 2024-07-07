@@ -2,14 +2,19 @@ import entities.Epic;
 import entities.Status;
 import entities.Subtask;
 import entities.Task;
-import service.TaskManager;
-import util.Managers;
+import service.FileBackedTaskManager;
+
+import java.io.File;
 
 public class Main {
 
-    private static final TaskManager manager = Managers.getDefault();
+    //   private static final TaskManager manager = Managers.getDefault();
+    static FileBackedTaskManager manager = new FileBackedTaskManager(new File("SaveFile.txt"));
+
 
     public static void main(String[] args) {
+
+
         System.out.println("~ НОВЫЕ ЗАДАЧИ ~");
 
         Task taskOne = manager.createTask(new Task("1-я задача", "Описание 1-ой задачи"));
@@ -48,10 +53,11 @@ public class Main {
 
         System.out.println("~ УДАЛЕНИЕ ~");
 
-        manager.removeEpicById(epicOne.getId());
+//        backedTaskManager.removeEpicById(epicOne.getId());
 
         manager.getTaskById(taskOne.getId());
         manager.getTaskById(taskTwo.getId());
+        manager.getEpicById(epicTwo.getId());
 
         printTasks();
     }
