@@ -5,8 +5,6 @@ import org.junit.jupiter.api.Test;
 import service.TaskManager;
 import util.Managers;
 
-import java.io.IOException;
-
 public class InMemoryHistoryManagerTest {
 
     private TaskManager taskManager;
@@ -17,7 +15,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void chekWhatOldVersionTaskDeleteToNewViewing() throws IOException {
+    public void chekWhatOldVersionTaskDeleteToNewViewing() {
         Task task = new Task("1", "");
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId());
@@ -28,7 +26,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void chekWhatByDeleteTaskAndDeleteFromHistory() throws IOException {
+    public void chekWhatByDeleteTaskAndDeleteFromHistory() {
         Task task = new Task("1", "");
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId());
@@ -40,7 +38,7 @@ public class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void chekWhatTaskAddToHistory() throws IOException {
+    public void chekWhatTaskAddToHistory() {
         Task task = new Task("1", "");
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId());
