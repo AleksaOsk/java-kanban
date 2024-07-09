@@ -8,7 +8,6 @@ import java.io.File;
 
 public class Main {
 
-    //   private static final TaskManager manager = Managers.getDefault();
     static FileBackedTaskManager manager = new FileBackedTaskManager(new File("SaveFile.txt"));
 
 
@@ -53,7 +52,7 @@ public class Main {
 
         System.out.println("~ УДАЛЕНИЕ ~");
 
-//        backedTaskManager.removeEpicById(epicOne.getId());
+        manager.removeEpicById(epicOne.getId());
 
         manager.getTaskById(taskOne.getId());
         manager.getTaskById(taskTwo.getId());
