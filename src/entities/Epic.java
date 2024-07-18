@@ -9,7 +9,7 @@ public class Epic extends Task {
     private final HashMap<Integer, Subtask> subtasks;
 
     public Epic(String name, String description) {
-        super(description, name);
+        super(name, description);
         subtasks = new HashMap<>();
     }
 
@@ -94,11 +94,11 @@ public class Epic extends Task {
     @Override
     public String toString() {
         return "Epic{" +
-                "subtasks=" + subtasks +
+                "id=" + getId() +
                 ", name='" + getName() + '\'' +
                 ", description='" + getStatus() + '\'' +
-                ", id=" + getId() +
                 ", status=" + getStatus() +
+                "subtasks=" + subtasks +
                 '}';
     }
 }

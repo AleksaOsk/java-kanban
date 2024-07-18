@@ -1,9 +1,6 @@
 package util;
 
-import service.HistoryManager;
-import service.InMemoryHistoryManager;
-import service.InMemoryTaskManager;
-import service.TaskManager;
+import service.*;
 
 public class Managers {
 
