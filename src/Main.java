@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
 
 
-        System.out.println("~ НОВЫЕ ЗАДАЧИ ~");
+        System.out.println("~~ НОВЫЕ ЗАДАЧИ ~~");
 
         Task taskOne = manager.createTask(new Task("1-я задача", "Описание 1-ой задачи"));
         Task taskTwo = manager.createTask(new Task("2-я задача", "Описание 2-ой задачи"));
