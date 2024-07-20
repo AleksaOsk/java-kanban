@@ -119,13 +119,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String[] valueTask;
         if (task instanceof Subtask) {
             valueTask = new String[]{Integer.toString(task.getId()), getType(task).toString(), task.getName(),
-                    task.getStatus().toString(), task.getDescription(), String.valueOf(task.getStartTime()),
-                    String.valueOf(task.getEndTime()), task.getDuration().toString(),
+                    task.getStatus().toString(), task.getDescription(), task.getStartTime().format(formatter),
+                    task.getEndTime().format(formatter), task.getDuration().toString(),
                     Integer.toString(((Subtask) task).getEpicId())};
-        } else {
+        } else if (task instanceof Epic) {
             valueTask = new String[]{Integer.toString(task.getId()), getType(task).toString(), task.getName(),
                     task.getStatus().toString(), task.getDescription(), String.valueOf(task.getStartTime()),
                     String.valueOf(task.getEndTime()), task.getDuration().toString()};
+        } else {
+            valueTask = new String[]{Integer.toString(task.getId()), getType(task).toString(), task.getName(),
+                    task.getStatus().toString(), task.getDescription(), task.getStartTime().format(formatter),
+                    task.getEndTime().format(formatter), task.getDuration().toString()};
         }
         return String.join(",", valueTask);
     }

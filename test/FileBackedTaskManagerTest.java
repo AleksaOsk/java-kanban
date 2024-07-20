@@ -84,10 +84,10 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
                 writer.write("""
                         id,type,name,status,description,startTime,endTime,duration,epic
-                        1,TASK,1-я задача,IN_PROGRESS,Описание 1-ой задачи, 10:30-20.07.2024 , 11:00-20.07.2024 ,PT30M
-                        2,TASK,3-я задача,NEW,Описание 3-ей задачи, 13:00-20.07.2024 , 13:30-20.07.2024 ,PT30M
-                        3,EPIC,1-й эпик,NEW,Описание 1-го эпика, 15:30-20.07.2024 , 18:20-20.07.2024 ,PT2H50M
-                        4,SUBTASK,1-я подзадача,NEW,Описание 1-ой подзадачи, 15:30-20.07.2024 , 17:00-20.07.2024 ,PT1H30M,3""");
+                        1,TASK,1-я задача,IN_PROGRESS,Описание 1-ой задачи, 10:30:01-20.07.2024 , 11:00:01-20.07.2024 ,PT30M
+                        2,TASK,3-я задача,NEW,Описание 3-ей задачи, 13:00:00-20.07.2024 , 13:30:00-20.07.2024 ,PT30M
+                        3,EPIC,1-й эпик,NEW,Описание 1-го эпика, 2024-07-20T15:30,2024-07-20T18:20,PT2H50M
+                        4,SUBTASK,1-я подзадача,NEW,Описание 1-ой подзадачи, 15:30:00-20.07.2024 , 17:00:00-20.07.2024 ,PT1H30M,3""");
             }
             FileBackedTaskManager fileManager = FileBackedTaskManager.loadFromFile(file);
             Assertions.assertEquals(fileManager.getAllTasks().size(), 2, "Количество задач не совпадает");

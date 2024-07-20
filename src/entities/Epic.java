@@ -23,10 +23,8 @@ public class Epic extends Task {
     }
 
     private HashMap<Integer, Subtask> deepCopyHashMap(Epic epic) {
-        HashMap<Integer, Subtask> map = epic.subtasks.entrySet().stream()
+        return epic.subtasks.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> new Subtask(entry.getValue()), (a, b) -> b, HashMap::new));
-
-        return map;
     }
 
     private List<Subtask> deepCopyArrayList() {
