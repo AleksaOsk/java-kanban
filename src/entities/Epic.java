@@ -96,7 +96,7 @@ public class Epic extends Task {
     public LocalDateTime getStartTime() {
         int id = 0;
         if (!subtasks.isEmpty()) {
-            for (Integer firstId:subtasks.keySet()){
+            for (Integer firstId : subtasks.keySet()) {
                 id = firstId;
                 break;
             }

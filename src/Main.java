@@ -20,9 +20,9 @@ public class Main {
         System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ НОВЫЕ ЗАДАЧИ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         Task task1 = manager.createTask(new Task("1-я задача", "Описание 1-ой задачи",
-                LocalDateTime.of(2024, 7, 20, 10, 30,1), Duration.ofMinutes(30)));
+                LocalDateTime.of(2024, 7, 20, 10, 30, 1), Duration.ofMinutes(30)));
         Task task2 = manager.createTask(new Task("2-я задача", "Описание 2-ой задачи",
-                LocalDateTime.of(2024, 7, 20, 11, 0,5), Duration.ofMinutes(30)));
+                LocalDateTime.of(2024, 7, 20, 11, 0, 5), Duration.ofMinutes(30)));
 
         Task task3 = manager.createTask(new Task("3-я задача", "Описание 3-ей задачи",
                 LocalDateTime.of(2024, 7, 20, 13, 0), Duration.ofMinutes(30)));
