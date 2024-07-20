@@ -1,15 +1,19 @@
 package entities;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Epic extends Task {
 
     private final HashMap<Integer, Subtask> subtasks;
 
     public Epic(String name, String description) {
-        super(name, description);
+        super(name, description, null, Duration.ofMinutes(0));
         subtasks = new HashMap<>();
     }
 
@@ -19,17 +23,14 @@ public class Epic extends Task {
     }
 
     private HashMap<Integer, Subtask> deepCopyHashMap(Epic epic) {
-        HashMap<Integer, Subtask> map = new HashMap<>();
-
-        for (Map.Entry<Integer, Subtask> entry : epic.subtasks.entrySet()) {
-            map.put(entry.getKey(), new Subtask(entry.getValue()));
-        }
+        HashMap<Integer, Subtask> map = epic.subtasks.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> new Subtask(entry.getValue()), (a, b) -> b, HashMap::new));
 
         return map;
     }
 
-    private ArrayList<Subtask> deepCopyArrayList() {
-        ArrayList<Subtask> arrayList = new ArrayList<>();
+    private List<Subtask> deepCopyArrayList() {
+        List<Subtask> arrayList = new ArrayList<>();
 
         for (Subtask subtask : subtasks.values()) {
             arrayList.add(new Subtask(subtask));
@@ -48,7 +49,7 @@ public class Epic extends Task {
         }
     }
 
-    public ArrayList<Subtask> getSubtasks() {
+    public List<Subtask> getSubtasks() {
         return deepCopyArrayList();
     }
 
@@ -92,13 +93,55 @@ public class Epic extends Task {
     }
 
     @Override
+    public LocalDateTime getStartTime() {
+        LocalDateTime startTime = LocalDateTime.now().plusYears(1000);
+        if (!subtasks.isEmpty()) {
+            for (Subtask subtask : subtasks.values()) {
+                if (subtask.getStartTime().isBefore(startTime)) {
+                    startTime = subtask.getStartTime();
+                }
+            }
+            return startTime;
+        }
+        return null;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        LocalDateTime endTime = LocalDateTime.now().minusYears(1000);
+        if (!subtasks.isEmpty()) {
+            for (Subtask subtask : getSubtasks()) {
+                if (subtask.getEndTime().isAfter(endTime)) {
+                    endTime = subtask.getEndTime();
+                }
+            }
+            return endTime;
+        }
+        return null;
+    }
+
+    @Override
+    public Duration getDuration() {
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = start;
+        if (!subtasks.isEmpty()) {
+            for (Subtask subtask : subtasks.values()) {
+                end = end.plus(subtask.getDuration());
+            }
+            return Duration.between(start, end);
+        }
+        return Duration.ZERO;
+    }
+
+    @Override
     public String toString() {
-        return "Epic{" +
-                "id=" + getId() +
+        return "Epic{" + "id=" + getId() +
                 ", name='" + getName() + '\'' +
                 ", description='" + getStatus() + '\'' +
                 ", status=" + getStatus() +
-                "subtasks=" + subtasks +
-                '}';
+                ", startTime=" + getStartTime() +
+                ", endTime=" + getEndTime() +
+                ", duration=" + getDuration() +
+                ", subtasks=" + subtasks + "}";
     }
 }

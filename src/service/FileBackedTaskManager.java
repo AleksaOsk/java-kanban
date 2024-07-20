@@ -3,15 +3,21 @@ package service;
 import entities.*;
 import exceptions.ManagerSaveException;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
+    static final String line = "id,type,name,status,description,startTime,endTime,duration,epic";
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern(" HH:mm-dd.MM.yyyy ");
     private final File file;
-    static final String line = "id,type,name,status,description,epic";
+
 
     public FileBackedTaskManager(File file) {
         this.file = file;
@@ -61,16 +67,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = splitValue[2];
         Status taskStatus = Status.valueOf(splitValue[3]);
         String description = splitValue[4];
+        String startTime = splitValue[5];
+        String duration = splitValue[7];
         Task task;
-        if (splitValue.length == 6) {
-            int epicId = Integer.parseInt(splitValue[5]);
-            task = new Subtask(name, description, epicId);
+        if (splitValue.length == 9) {
+            int epicId = Integer.parseInt(splitValue[8]);
+            task = new Subtask(name, description, epicId, LocalDateTime.parse(startTime, formatter),
+                    Duration.parse(duration));
             task.setId(id);
             task.setStatus(taskStatus);
             return task;
         } else {
             if (taskType == Type.TASK) {
-                task = new Task(name, description);
+                task = new Task(name, description, LocalDateTime.parse(startTime, formatter),
+                        Duration.parse(duration));
                 task.setId(id);
                 task.setStatus(taskStatus);
                 return task;
@@ -106,34 +116,49 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private String toString(Task task) {
         String[] valueTask;
         if (task instanceof Subtask) {
-            valueTask = new String[]{Integer.toString(task.getId()), getType(task).toString(), task.getName(), task.getStatus().toString(),
-                    task.getDescription(), Integer.toString(((Subtask) task).getEpicId())};
+            valueTask = new String[]{Integer.toString(task.getId()), getType(task).toString(), task.getName(),
+                    task.getStatus().toString(), task.getDescription(), task.getStartTime().format(formatter),
+                    task.getEndTime().format(formatter), task.getDuration().toString(),
+                    Integer.toString(((Subtask) task).getEpicId())};
         } else {
-            valueTask = new String[]{Integer.toString(task.getId()), getType(task).toString(), task.getName(), task.getStatus().toString(),
-                    task.getDescription()};
+            valueTask = new String[]{Integer.toString(task.getId()), getType(task).toString(), task.getName(),
+                    task.getStatus().toString(), task.getDescription(), String.valueOf(task.getStartTime()),
+                    String.valueOf(task.getEndTime()), String.valueOf(task.getDuration())};
         }
         return String.join(",", valueTask);
     }
 
     @Override
     public Subtask createSubtask(Subtask subtask) {
-        super.createSubtask(subtask);
-        save();
-        return subtask;
+        if (subtask != null) {
+            super.createSubtask(subtask);
+            save();
+            return subtask;
+        } else {
+            return null;
+        }
     }
 
     @Override
     public Task createTask(Task task) {
-        super.createTask(task);
-        save();
-        return task;
+        if (task != null) {
+            super.createTask(task);
+            save();
+            return task;
+        } else {
+            return null;
+        }
     }
 
     @Override
     public Epic createEpic(Epic epic) {
-        super.createEpic(epic);
-        save();
-        return epic;
+        if (epic != null) {
+            super.createEpic(epic);
+            save();
+            return epic;
+        } else {
+            return null;
+        }
     }
 
     @Override
