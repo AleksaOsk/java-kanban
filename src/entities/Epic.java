@@ -94,8 +94,13 @@ public class Epic extends Task {
 
     @Override
     public LocalDateTime getStartTime() {
-        LocalDateTime startTime = LocalDateTime.now().plusYears(1000);
+        int id = 0;
         if (!subtasks.isEmpty()) {
+            for (Integer firstId:subtasks.keySet()){
+                id = firstId;
+                break;
+            }
+            LocalDateTime startTime = subtasks.get(id).getStartTime();
             for (Subtask subtask : subtasks.values()) {
                 if (subtask.getStartTime().isBefore(startTime)) {
                     startTime = subtask.getStartTime();
@@ -108,9 +113,10 @@ public class Epic extends Task {
 
     @Override
     public LocalDateTime getEndTime() {
-        LocalDateTime endTime = LocalDateTime.now().minusYears(1000);
+        LocalDateTime endTime = getStartTime();
         if (!subtasks.isEmpty()) {
             for (Subtask subtask : getSubtasks()) {
+                endTime = subtask.getEndTime();
                 if (subtask.getEndTime().isAfter(endTime)) {
                     endTime = subtask.getEndTime();
                 }

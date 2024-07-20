@@ -15,7 +15,9 @@ import java.time.format.DateTimeFormatter;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     static final String line = "id,type,name,status,description,startTime,endTime,duration,epic";
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern(" HH:mm-dd.MM.yyyy ");
+//    Меня смутило что duration мы задаем в минутах (так по ТЗ).
+//    Так же кажется странным, если пользователи при создания задачи будут вносить время до секунды.
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern(" HH:mm:ss-dd.MM.yyyy ");
     private final File file;
 
 
@@ -117,13 +119,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String[] valueTask;
         if (task instanceof Subtask) {
             valueTask = new String[]{Integer.toString(task.getId()), getType(task).toString(), task.getName(),
-                    task.getStatus().toString(), task.getDescription(), task.getStartTime().format(formatter),
-                    task.getEndTime().format(formatter), task.getDuration().toString(),
+                    task.getStatus().toString(), task.getDescription(), String.valueOf(task.getStartTime()),
+                    String.valueOf(task.getEndTime()), task.getDuration().toString(),
                     Integer.toString(((Subtask) task).getEpicId())};
         } else {
             valueTask = new String[]{Integer.toString(task.getId()), getType(task).toString(), task.getName(),
                     task.getStatus().toString(), task.getDescription(), String.valueOf(task.getStartTime()),
-                    String.valueOf(task.getEndTime()), String.valueOf(task.getDuration())};
+                    String.valueOf(task.getEndTime()), task.getDuration().toString()};
         }
         return String.join(",", valueTask);
     }
