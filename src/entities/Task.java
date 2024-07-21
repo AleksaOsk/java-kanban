@@ -1,5 +1,7 @@
 package entities;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -7,17 +9,41 @@ public class Task {
     private String description;
     private Integer id;
     private Status status;
+    private Duration duration;
+    private LocalDateTime startTime;
 
-    public Task(String name, String description) {
+    public Task(String name, String description, LocalDateTime startTime, Duration durationMinutes) {
         this.description = description;
         this.name = name;
         this.status = Status.NEW;
+        this.startTime = startTime;
+        this.duration = durationMinutes;
     }
 
     public Task(Task task) {
-        this(task.name, task.description);
+        this(task.name, task.description, task.startTime, task.duration);
         this.status = task.status;
         this.id = task.id;
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
     }
 
     public Integer getId() {
@@ -32,20 +58,20 @@ public class Task {
         return description;
     }
 
-    public String getName() {
-        return name;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public Status getStatus() {
-        return status;
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public Status getStatus() {
+        return status;
     }
 
     public void setStatus(Status status) {
@@ -72,6 +98,9 @@ public class Task {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
-                '}';
+                ", startTime=" + startTime +
+                ", endTime=" + getEndTime() +
+                ", duration=" + duration +
+                "}\n";
     }
 }
