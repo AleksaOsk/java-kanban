@@ -15,8 +15,6 @@ import java.time.format.DateTimeFormatter;
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
     static final String line = "id,type,name,status,description,startTime,endTime,duration,epic";
-    //    Меня смутило что duration мы задаем в минутах (так по ТЗ).
-//    Так же кажется странным, если пользователи при создания задачи будут вносить время до секунды.
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern(" HH:mm:ss-dd.MM.yyyy ");
     private final File file;
 
