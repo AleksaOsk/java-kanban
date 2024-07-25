@@ -1,3 +1,5 @@
+package serviceTests;
+
 import entities.Task;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +22,7 @@ public class InMemoryHistoryManagerTest {
     @Test
     public void chekWhatOldVersionTaskDeleteToNewViewing() {
         Task task = new Task("1", "",
-                LocalDateTime.of(2024,7,20,12,0), Duration.ofMinutes(30));
+                LocalDateTime.of(2024, 7, 20, 12, 0), Duration.ofMinutes(30));
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId());
         task.setName("2");
@@ -32,11 +34,11 @@ public class InMemoryHistoryManagerTest {
     @Test
     public void chekWhatByDeleteTaskAndDeleteFromHistory() {
         Task task = new Task("1", "",
-                LocalDateTime.of(2024,7,20,12,0),Duration.ofMinutes(30));
+                LocalDateTime.of(2024, 7, 20, 12, 0), Duration.ofMinutes(30));
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId());
         Task task2 = new Task("2", "",
-                LocalDateTime.of(2024,7,20,13,0),Duration.ofMinutes(30));
+                LocalDateTime.of(2024, 7, 20, 13, 0), Duration.ofMinutes(30));
         taskManager.createTask(task2);
         taskManager.getTaskById(task2.getId());
         taskManager.removeTaskById(task.getId());
@@ -46,7 +48,7 @@ public class InMemoryHistoryManagerTest {
     @Test
     public void chekWhatTaskAddToHistory() {
         Task task = new Task("1", "",
-                LocalDateTime.of(2024,7,20,14,0),Duration.ofMinutes(30));
+                LocalDateTime.of(2024, 7, 20, 14, 0), Duration.ofMinutes(30));
         taskManager.createTask(task);
         taskManager.getTaskById(task.getId());
         Assertions.assertEquals(taskManager.getHistory().getFirst(), task);

@@ -22,7 +22,7 @@ public class Task {
 
     public Task(Task task) {
         this(task.name, task.description, task.startTime, task.duration);
-        this.status = task.status;
+        this.status = getStatus();
         this.id = task.id;
     }
 
@@ -94,13 +94,13 @@ public class Task {
     @Override
     public String toString() {
         return "Task{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                ", startTime=" + startTime +
-                ", endTime=" + getEndTime() +
-                ", duration=" + duration +
-                "}\n";
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", description='" + description + '\'' +
+               ", status=" + status +
+               ", startTime=" + startTime +
+               ", endTime=" + getEndTime() +
+               ", duration=" + duration +
+               "}\n";
     }
 }

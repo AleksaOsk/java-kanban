@@ -1,10 +1,8 @@
+package entitiesTests;
+
 import entities.Epic;
-import entities.Subtask;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 public class EpicTest {
 
