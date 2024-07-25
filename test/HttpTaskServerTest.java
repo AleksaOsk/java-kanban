@@ -4,7 +4,6 @@ import entities.Epic;
 import entities.Subtask;
 import entities.Task;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Adapters.DurationTypeAdapter;
@@ -22,9 +21,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class HttpTaskServerTest {
 
@@ -102,7 +100,7 @@ public class HttpTaskServerTest {
 
         assertNotNull(tasksFromManager, "Задачи не возвращаются");
         assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
-        assertEquals("Таск 1", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
+        assertEquals("Таск 1", tasksFromManager.getFirst().getName(), "Некорректное имя задачи");
     }
 
     @Test
@@ -122,7 +120,7 @@ public class HttpTaskServerTest {
 
         assertNotNull(tasksFromManager, "Задачи не возвращаются");
         assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
-        assertEquals("Эпик 1", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
+        assertEquals("Эпик 1", tasksFromManager.getFirst().getName(), "Некорректное имя задачи");
     }
 
     @Test
@@ -261,7 +259,7 @@ public class HttpTaskServerTest {
         HttpResponse<String> responseUpdate = client.send(requestUpdate, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, responseUpdate.statusCode(), "Неверный код ответа");
 
-        Assertions.assertNotNull(task, "Задача пустая");
+        assertNotNull(task, "Задача пустая");
         assertNotEquals(nameExpected, task.getName(), "Название не обновилось");
         assertNotEquals(descriptionExpected, task.getDescription(), "Описание не обновилось");
         assertNotEquals(startTimeExpected, task.getStartTime(), "Стартовое время не обновилось");
@@ -295,7 +293,7 @@ public class HttpTaskServerTest {
         HttpResponse<String> responseUpdate = client.send(requestUpdate, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, responseUpdate.statusCode(), "Неверный код ответа");
 
-        Assertions.assertNotNull(epic, "Эпик пустой");
+        assertNotNull(epic, "Эпик пустой");
         assertNotEquals(nameExpected, epic.getName(), "Название не обновилось");
         assertNotEquals(descriptionExpected, epic.getDescription(), "Описание не обновилось");
     }
@@ -337,8 +335,8 @@ public class HttpTaskServerTest {
         subtask = new Subtask("Задача 3", "Задача 3", 1, LocalDateTime.of(2024, 8, 20, 16, 30), Duration.ofMinutes(80));
         Epic epic1 = manager.getEpicById(subtask.getEpicId());
 
-        Assertions.assertNotNull(epic, "Эпик пустой");
-        Assertions.assertNotNull(subtask, "Задача пустая");
+        assertNotNull(epic, "Эпик пустой");
+        assertNotNull(subtask, "Задача пустая");
         assertNotEquals(nameExpectedSubtask, subtask.getName(), "Название подзадачи не обновилось");
         assertNotEquals(descriptionExpectedSubtask, subtask.getDescription(), "Описание подзадачи не обновилось");
         assertNotEquals(startTimeExpectedSubtask, subtask.getStartTime(), "Стартовое время подзадачи не обновилось");
@@ -368,7 +366,7 @@ public class HttpTaskServerTest {
 
         assertNotNull(tasksFromManager, "Задачи не возвращаются");
         assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
-        assertEquals("Задача 1", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
+        assertEquals("Задача 1", tasksFromManager.getFirst().getName(), "Некорректное имя задачи");
 
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/1");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
@@ -398,7 +396,7 @@ public class HttpTaskServerTest {
 
         assertNotNull(tasksFromManager, "Задачи не возвращаются");
         assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
-        assertEquals("Задача 1", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
+        assertEquals("Задача 1", tasksFromManager.getFirst().getName(), "Некорректное имя задачи");
 
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/epics/1");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
@@ -438,7 +436,7 @@ public class HttpTaskServerTest {
 
         assertNotNull(tasksFromManager, "Задачи не возвращаются");
         assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
-        assertEquals("Задача 2", tasksFromManager.get(0).getName(), "Некорректное имя задачи");
+        assertEquals("Задача 2", tasksFromManager.getFirst().getName(), "Некорректное имя задачи");
 
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/subtasks/2");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
@@ -525,7 +523,7 @@ public class HttpTaskServerTest {
                   }
                 ]""";
 
-        Assertions.assertEquals(expectedBody, response.body(), "Ошибка сортировки при добавлении задач");
+        assertEquals(expectedBody, response.body(), "Ошибка сортировки при добавлении задач");
 
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/2");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
@@ -558,7 +556,7 @@ public class HttpTaskServerTest {
                   }
                 ]""";
 
-        Assertions.assertEquals(expectedBodyAfterDelete, response2.body(), "Ошибка сортировки при добавлении задач");
+        assertEquals(expectedBodyAfterDelete, response2.body(), "Ошибка сортировки при добавлении задач");
     }
 
     @Test
@@ -651,7 +649,7 @@ public class HttpTaskServerTest {
                   }
                 ]""";
 
-        Assertions.assertEquals(expectedBody, response.body(), "Ошибка сортировки при добавлении задач");
+        assertEquals(expectedBody, response.body(), "Ошибка сортировки при добавлении задач");
 
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/1");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
@@ -694,6 +692,6 @@ public class HttpTaskServerTest {
                     "startTime": "2024-07-21T15:30"
                   }
                 ]""";
-        Assertions.assertEquals(expectedBodyAfterDelete, response2.body(), "Ошибка сортировки при добавлении задач");
+        assertEquals(expectedBodyAfterDelete, response2.body(), "Ошибка сортировки при добавлении задач");
     }
 }
