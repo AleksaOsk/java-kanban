@@ -61,32 +61,25 @@ public class BaseHttpHandler implements HttpHandler {
     protected void handleGet(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
         String[] pathArray = path.split("/");
-        String type = path.split("/")[2];
+        TypeRequest type = TypeRequest.valueOf(path.split("/")[2]);
         switch (type) {
-            case "tasks":
+            case tasks:
                 taskHttpHandler.handleGet(exchange, type, pathArray);
                 return;
-            case "subtasks":
+            case subtasks:
                 subtaskHttpHandler.handleGet(exchange, type, pathArray);
                 return;
-            case "epics":
+            case epics:
                 epicHttpHandler.handleGet(exchange, pathArray);
                 return;
-            case "history":
+            case history:
                 writeResponse(taskManager.getHistory(), exchange, 200);
                 return;
-            case "prioritized"://не понимаю почему тут не получается использовать taskManager.getPrioritizedTasks(),
-                //я ведь создаю экземпляр класса InMemoryTaskManager, в котором и реализован данный метод
+            case prioritized:
                 writeResponse(InMemoryTaskManager.getPrioritizedTasks(), exchange, 200);
                 return;
             default:
-                writeResponse(new ErrorResponse("""
-                        Неверный URL. Существуют:
-                         /tasks
-                         /subtasks
-                         /epics
-                         /history
-                         /prioritized"""), exchange, 404);
+                writeResponse(new ErrorResponse("Неверный URL."), exchange, 404);
         }
     }
 
@@ -101,55 +94,46 @@ public class BaseHttpHandler implements HttpHandler {
 
         String path = exchange.getRequestURI().getPath();
         String[] pathArray = path.split("/");
-        String type = path.split("/")[2];
+        TypeRequest type = TypeRequest.valueOf(path.split("/")[2]);
 
         switch (type) {
-            case "tasks":
+            case tasks:
                 Task task = gson.fromJson(requestBody, Task.class);
                 taskHttpHandler.handlePost(exchange, type, pathArray, task);
                 return;
-            case "subtasks":
+            case subtasks:
                 Subtask subtask = gson.fromJson(requestBody, Subtask.class);
-                if (subtask.getEpicId() != null) {
+                if (subtask.getEpicId() != null || subtask.getEpicId() <= 0) {
                     subtaskHttpHandler.handlePost(exchange, type, pathArray, subtask);
                 } else {
                     writeResponse("Вы не добавили epicId, задача не сохранена", exchange, 404);
                 }
                 return;
-            case "epics":
+            case epics:
                 Epic epic = gson.fromJson(requestBody, Epic.class);
                 epicHttpHandler.handlePost(exchange, pathArray, epic);
                 return;
             default:
-                writeResponse(new ErrorResponse("""
-                        Неверный URL. Существуют:
-                         /tasks
-                         /subtasks
-                         /epics"""), exchange, 404);
+                writeResponse(new ErrorResponse("Неверный URL."), exchange, 404);
         }
     }
 
     protected void handleDelete(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
         String[] pathArray = path.split("/");
-        String type = path.split("/")[2];
+        TypeRequest type = TypeRequest.valueOf(path.split("/")[2]);
         switch (type) {
-            case "tasks":
+            case tasks:
                 taskHttpHandler.handleDelete(exchange, type, pathArray);
                 return;
-            case "subtasks":
+            case subtasks:
                 subtaskHttpHandler.handleDelete(exchange, type, pathArray);
                 return;
-            case "epics":
+            case epics:
                 epicHttpHandler.handleDelete(exchange, type, pathArray);
                 return;
             default:
-                writeResponse(new ErrorResponse("""
-                        Неверный URL. Существуют:
-                         /tasks
-                         /subtasks
-                         /epics
-                        """), exchange, 404);
+                writeResponse(new ErrorResponse("Неверный URL."), exchange, 404);
         }
     }
 
