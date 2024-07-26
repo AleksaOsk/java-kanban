@@ -23,7 +23,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 public class HttpTaskServerTest {
 
     FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(File.createTempFile("test", "csv"));
@@ -81,38 +80,42 @@ public class HttpTaskServerTest {
                 .build();
     }
 
-
     @Test
-    public void testAddTask() throws IOException, InterruptedException {
-        Task task = new Task("Таск 1", "Тест таск 1", LocalDateTime.now(), Duration.ofMinutes(5));
-
+    public void addTaskTest() throws IOException, InterruptedException {
         Gson gson = getGson();
-        String taskJson = gson.toJson(task);
-
         HttpClient client = HttpClient.newHttpClient();
+
+        Task task1 = new Task("Таск 1", "Тест таск 1", LocalDateTime.of(2024, 7, 26, 12, 0), Duration.ofMinutes(5));
+        String taskJson = gson.toJson(task1);
         URI url = URI.create("http://localhost:8080/TaskManager/tasks");
         HttpRequest request = getRequestPOST(taskJson, url);
-
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response.statusCode(), "Неверный код ответа");
+
+        Task task2 = new Task("Таск 2", "Тест таск 2", LocalDateTime.of(2024, 7, 26, 13, 0), Duration.ofMinutes(5));
+        String taskJson2 = gson.toJson(task2);
+        URI url2 = URI.create("http://localhost:8080/TaskManager/tasks");
+        HttpRequest request2 = getRequestPOST(taskJson2, url2);
+        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response2.statusCode(), "Неверный код ответа");
 
         List<Task> tasksFromManager = manager.getAllTasks();
 
         assertNotNull(tasksFromManager, "Задачи не возвращаются");
-        assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
+        assertEquals(2, tasksFromManager.size(), "Некорректное количество задач");
         assertEquals("Таск 1", tasksFromManager.getFirst().getName(), "Некорректное имя задачи");
+        assertEquals("Таск 2", tasksFromManager.getLast().getName(), "Некорректное имя задачи");
     }
 
     @Test
-    public void testAddEpic() throws IOException, InterruptedException {
-        Epic epic = new Epic("Эпик 1", "Тест эпик 1");
+    public void addEpicTest() throws IOException, InterruptedException {
         Gson gson = getGson();
-        String taskJson = gson.toJson(epic);
-
         HttpClient client = HttpClient.newHttpClient();
+
+        Epic epic = new Epic("Эпик 1", "Тест эпик 1");
+        String taskJson = gson.toJson(epic);
         URI url = URI.create("http://localhost:8080/TaskManager/epics");
         HttpRequest request = getRequestPOST(taskJson, url);
-
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response.statusCode(), "Неверный код ответа");
 
@@ -124,23 +127,113 @@ public class HttpTaskServerTest {
     }
 
     @Test
-    public void getTasksTest() throws IOException, InterruptedException {
-        Task task1 = new Task("Задача 1", "описание 1 задачи", LocalDateTime.of(2024, 7, 20, 15, 30), Duration.ofMinutes(30));
-        manager.createTask(task1);
-        Task task2 = new Task("Задача 2", "описание 2 задачи", LocalDateTime.of(2024, 7, 20, 16, 30), Duration.ofMinutes(90));
-        manager.createTask(task2);
-
+    public void addSubtasksTest() throws IOException, InterruptedException {
+        Gson gson = getGson();
         HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/TaskManager/tasks");
 
-        HttpRequest requestGet = getRequestGET(url);
-        HttpResponse<String> responseGet = client.send(requestGet, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, responseGet.statusCode(), "Неверный код ответа");
+        addEpicTest();
+
+        Subtask subtask1 = new Subtask("1-я подзадача", "описание 1", 1,
+                LocalDateTime.of(2024, 7, 20, 15, 30), Duration.ofMinutes(30));
+        Subtask subtask2 = new Subtask("2-я подзадача", "описание 2", 1,
+                LocalDateTime.of(2024, 7, 20, 16, 30), Duration.ofMinutes(90));
+
+
+        String task1Json = gson.toJson(subtask1);
+        String task2Json = gson.toJson(subtask2);
+
+        URI url = URI.create("http://localhost:8080/TaskManager/subtasks");
+        HttpRequest request1 = getRequestPOST(task1Json, url);
+        HttpResponse<String> response1 = client.send(request1, HttpResponse.BodyHandlers.ofString());
+        assertEquals(response1.statusCode(), 201, "Неверный код ответа");
+        HttpRequest request2 = getRequestPOST(task2Json, url);
+        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+        assertEquals(response2.statusCode(), 201, "Неверный код ответа");
+
+        List<Subtask> tasksFromManager = manager.getAllSubtasks();
+
+        assertNotNull(tasksFromManager, "Задачи не возвращаются");
+        assertEquals(2, tasksFromManager.size(), "Некорректное количество задач");
+        assertEquals("1-я подзадача", tasksFromManager.getFirst().getName(), "Некорректное имя подзадачи");
     }
 
     @Test
-    public void getEpicTest() throws IOException, InterruptedException {
-        Epic epic = new Epic("Эпик 1", "описание 1");
+    public void getTasksTest() throws IOException, InterruptedException {
+        addTaskTest();
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/TaskManager/tasks");
+        HttpRequest requestGet = getRequestGET(url);
+        HttpResponse<String> responseGet = client.send(requestGet, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, responseGet.statusCode(), "Неверный код ответа");
+
+        String expectedBody = """
+                [
+                  {
+                    "name": "Таск 1",
+                    "description": "Тест таск 1",
+                    "id": 1,
+                    "status": "NEW",
+                    "duration": 5,
+                    "startTime": "2024-07-26T12:00"
+                  },
+                  {
+                    "name": "Таск 2",
+                    "description": "Тест таск 2",
+                    "id": 2,
+                    "status": "NEW",
+                    "duration": 5,
+                    "startTime": "2024-07-26T13:00"
+                  }
+                ]""";
+
+        assertNotNull(responseGet.body(), "Задачи не возвращаются");
+        assertEquals(expectedBody, responseGet.body(), "Некорректно выводятся задачи");
+
+    }
+
+    @Test
+    public void getSubtasksTest() throws IOException, InterruptedException {
+        addSubtasksTest();
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        URI url = URI.create("http://localhost:8080/TaskManager/subtasks");
+        HttpRequest requestGet = getRequestGET(url);
+        HttpResponse<String> responseGet = client.send(requestGet, HttpResponse.BodyHandlers.ofString());
+        assertEquals(responseGet.statusCode(), 200, "Неверный код ответа");
+
+        String expectedBody = """
+                [
+                  {
+                    "epicId": 1,
+                    "name": "1-я подзадача",
+                    "description": "описание 1",
+                    "id": 2,
+                    "status": "NEW",
+                    "duration": 30,
+                    "startTime": "2024-07-20T15:30"
+                  },
+                  {
+                    "epicId": 1,
+                    "name": "2-я подзадача",
+                    "description": "описание 2",
+                    "id": 3,
+                    "status": "NEW",
+                    "duration": 90,
+                    "startTime": "2024-07-20T16:30"
+                  }
+                ]""";
+
+        assertNotNull(responseGet.body(), "Задачи не возвращаются");
+        assertEquals(expectedBody, responseGet.body(), "Некорректно выводятся задачи");
+    }
+
+    @Test
+    public void getEpicsTest() throws IOException, InterruptedException {
+        addSubtasksTest();
+
+        Epic epic = new Epic("Эпик 2", "Тест эпик 2");
         manager.createEpic(epic);
 
         HttpClient client = HttpClient.newHttpClient();
@@ -149,50 +242,54 @@ public class HttpTaskServerTest {
         HttpRequest requestGet = getRequestGET(url);
         HttpResponse<String> responseGet = client.send(requestGet, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseGet.statusCode(), "Неверный код ответа");
-    }
 
-    @Test
-    public void addAndGetSubtasksTest() throws IOException, InterruptedException {
-        Epic epic = new Epic("Эпик", "Описание эпика");
-        Subtask subtask1 = new Subtask("1-я подзадача", "описание 1", 1,
-                LocalDateTime.of(2024, 7, 20, 15, 30), Duration.ofMinutes(30));
-        Subtask subtask2 = new Subtask("2-я подзадача", "описание 2", 1,
-                LocalDateTime.of(2024, 7, 20, 16, 30), Duration.ofMinutes(90));
+        String expectedBody = """
+                [
+                  {
+                    "subtasks": {
+                      "2": {
+                        "epicId": 1,
+                        "name": "1-я подзадача",
+                        "description": "описание 1",
+                        "id": 2,
+                        "status": "NEW",
+                        "duration": 30,
+                        "startTime": "2024-07-20T15:30"
+                      },
+                      "3": {
+                        "epicId": 1,
+                        "name": "2-я подзадача",
+                        "description": "описание 2",
+                        "id": 3,
+                        "status": "NEW",
+                        "duration": 90,
+                        "startTime": "2024-07-20T16:30"
+                      }
+                    },
+                    "name": "Эпик 1",
+                    "description": "Тест эпик 1",
+                    "id": 1,
+                    "status": "NEW",
+                    "duration": 120,
+                    "startTime": "2024-07-20T15:30"
+                  },
+                  {
+                    "subtasks": {},
+                    "name": "Эпик 2",
+                    "description": "Тест эпик 2",
+                    "id": 4,
+                    "status": "NEW",
+                    "duration": 0
+                  }
+                ]""";
 
-        Gson gson = getGson();
-        String taskJson = gson.toJson(epic);
-        String task1Json = gson.toJson(subtask1);
-        String task2Json = gson.toJson(subtask2);
-
-        HttpClient client = HttpClient.newHttpClient();
-
-        URI url = URI.create("http://localhost:8080/TaskManager/epics");
-        HttpRequest request = getRequestPOST(taskJson, url);
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(response.statusCode(), 201, "Неверный код ответа");
-
-        URI url1 = URI.create("http://localhost:8080/TaskManager/subtasks");
-        HttpRequest request1 = getRequestPOST(task1Json, url1);
-        HttpResponse<String> response1 = client.send(request1, HttpResponse.BodyHandlers.ofString());
-        assertEquals(response1.statusCode(), 201, "Неверный код ответа");
-        HttpRequest request2 = getRequestPOST(task2Json, url1);
-        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
-        assertEquals(response2.statusCode(), 201, "Неверный код ответа");
-
-        List<Subtask> tasksFromManager = manager.getAllSubtasks();
-
-        assertNotNull(tasksFromManager, "Задачи не возвращаются");
-        assertEquals(tasksFromManager.size(), 2, "Некорректное количество задач");
-
-        HttpRequest requestGet = getRequestGET(url1);
-        HttpResponse<String> responseGet = client.send(requestGet, HttpResponse.BodyHandlers.ofString());
-        assertEquals(responseGet.statusCode(), 200, "Неверный код ответа");
+        assertNotNull(responseGet.body(), "Задачи не возвращаются");
+        assertEquals(expectedBody, responseGet.body(), "Некорректно выводятся задачи");
     }
 
     @Test
     void getTaskIdTest() throws IOException, InterruptedException {
-        Task task1 = new Task("Задача 1", "Задача 1", LocalDateTime.of(2024, 7, 20, 15, 30), Duration.ofMinutes(30));
-        manager.createTask(task1);
+        addTaskTest();
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/TaskManager/tasks/1");
@@ -200,12 +297,24 @@ public class HttpTaskServerTest {
         HttpRequest requestGet = getRequestGET(url);
         HttpResponse<String> responseGet = client.send(requestGet, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseGet.statusCode(), "Неверный код ответа");
+
+        String expectedBody = """
+                {
+                  "name": "Таск 1",
+                  "description": "Тест таск 1",
+                  "id": 1,
+                  "status": "NEW",
+                  "duration": 5,
+                  "startTime": "2024-07-26T12:00"
+                }""";
+
+        assertNotNull(responseGet.body(), "Задача не возвращается");
+        assertEquals(expectedBody, responseGet.body(), "Некорректно выводится задача");
     }
 
     @Test
     public void getEpicIdTest() throws IOException, InterruptedException {
-        Epic epic = new Epic("Эпик 1", "описание 1");
-        manager.createEpic(epic);
+        getEpicsTest();
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/TaskManager/epics/1");
@@ -213,89 +322,120 @@ public class HttpTaskServerTest {
         HttpRequest requestGet = getRequestGET(url);
         HttpResponse<String> responseGet = client.send(requestGet, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseGet.statusCode(), "Неверный код ответа");
+
+        String expectedBody = """
+                {
+                  "subtasks": {
+                    "2": {
+                      "epicId": 1,
+                      "name": "1-я подзадача",
+                      "description": "описание 1",
+                      "id": 2,
+                      "status": "NEW",
+                      "duration": 30,
+                      "startTime": "2024-07-20T15:30"
+                    },
+                    "3": {
+                      "epicId": 1,
+                      "name": "2-я подзадача",
+                      "description": "описание 2",
+                      "id": 3,
+                      "status": "NEW",
+                      "duration": 90,
+                      "startTime": "2024-07-20T16:30"
+                    }
+                  },
+                  "name": "Эпик 1",
+                  "description": "Тест эпик 1",
+                  "id": 1,
+                  "status": "NEW",
+                  "duration": 120,
+                  "startTime": "2024-07-20T15:30"
+                }""";
+
+        assertNotNull(responseGet.body(), "Задачи не возвращаются");
+        assertEquals(expectedBody, responseGet.body(), "Некорректно выводятся задачи");
     }
 
     @Test
     void getSubtaskIdTest() throws IOException, InterruptedException {
-        Epic epic = new Epic("Задача 1", "Задача 1");
-        manager.createEpic(epic);
-        Subtask subtask1 = new Subtask("Задача 2", "Задача 2", epic.getId(), LocalDateTime.of(2024, 7, 20, 15, 30), Duration.ofMinutes(30));
-        manager.createSubtask(subtask1);
+        addSubtasksTest();
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/TaskManager/subtasks/2");
-
         HttpRequest requestGet = getRequestGET(url);
         HttpResponse<String> responseGet = client.send(requestGet, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseGet.statusCode(), "Неверный код ответа");
+
+        String expectedBody = """
+                {
+                  "epicId": 1,
+                  "name": "1-я подзадача",
+                  "description": "описание 1",
+                  "id": 2,
+                  "status": "NEW",
+                  "duration": 30,
+                  "startTime": "2024-07-20T15:30"
+                }""";
+
+        assertNotNull(responseGet.body(), "Задача не возвращается");
+        assertEquals(expectedBody, responseGet.body(), "Некорректно выводится задача");
     }
 
     @Test
     void updateTaskTest() throws IOException, InterruptedException {
-        Task task = new Task("Задача 1", "Задача 1", LocalDateTime.of(2024, 7, 20, 15, 30), Duration.ofMinutes(30));
-        String nameExpected = task.getName();
-        String descriptionExpected = task.getDescription();
-        LocalDateTime startTimeExpected = task.getStartTime();
-        LocalDateTime endTimeExpected = task.getEndTime();
-        Duration durationExpected = task.getDuration();
+        addTaskTest();
 
         Gson gson = getGson();
-        String taskJson = gson.toJson(task);
-
         HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/TaskManager/tasks");
-        HttpRequest request = getRequestPOST(taskJson, url);
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Неверный код ответа");
-
-        task = new Task("Задача 2", "Задача 2", LocalDateTime.of(2024, 7, 20, 16, 30), Duration.ofMinutes(90));
-
+        Task task = new Task("Задача 2", "Задача 2", LocalDateTime.of(2024, 7, 20, 16, 30), Duration.ofMinutes(90));
         String taskJsonUpdate = gson.toJson(task);
-
         URI urlUpdate = URI.create("http://localhost:8080/TaskManager/tasks/1");
         HttpRequest requestUpdate = getRequestPOST(taskJsonUpdate, urlUpdate);
-
         HttpResponse<String> responseUpdate = client.send(requestUpdate, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, responseUpdate.statusCode(), "Неверный код ответа");
 
-        assertNotNull(task, "Задача пустая");
-        assertNotEquals(nameExpected, task.getName(), "Название не обновилось");
-        assertNotEquals(descriptionExpected, task.getDescription(), "Описание не обновилось");
-        assertNotEquals(startTimeExpected, task.getStartTime(), "Стартовое время не обновилось");
-        assertNotEquals(endTimeExpected, task.getEndTime(), "Время окончания не обновилось");
-        assertNotEquals(durationExpected, task.getDuration(), "Продолжительность выполнения не обновилась");
+        String expectedBody = """
+                {
+                  "name": "Задача 2",
+                  "description": "Задача 2",
+                  "id": 1,
+                  "status": "NEW",
+                  "duration": 90,
+                  "startTime": "2024-07-20T16:30"
+                }""";
+
+        assertNotNull(responseUpdate.body(), "Задача не возвращается");
+        assertEquals(expectedBody, responseUpdate.body(), "Некорректно выводится задача");
     }
 
     @Test
     void updateEpicTest() throws IOException, InterruptedException {
-        Epic epic = new Epic("Задача 1", "Задача 1");
-        String nameExpected = epic.getName();
-        String descriptionExpected = epic.getDescription();
+        addEpicTest();
 
         Gson gson = getGson();
-        String taskJson = gson.toJson(epic);
-
         HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/TaskManager/epics");
-        HttpRequest request = getRequestPOST(taskJson, url);
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Неверный код ответа");
-
-        epic = new Epic("Задача 2", "Задача 2");
-
+        Epic epic = new Epic("Задача 2", "Задача 2");
         String taskJsonUpdate = gson.toJson(epic);
-
         URI urlUpdate = URI.create("http://localhost:8080/TaskManager/epics/1");
         HttpRequest requestUpdate = getRequestPOST(taskJsonUpdate, urlUpdate);
-
         HttpResponse<String> responseUpdate = client.send(requestUpdate, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, responseUpdate.statusCode(), "Неверный код ответа");
 
-        assertNotNull(epic, "Эпик пустой");
-        assertNotEquals(nameExpected, epic.getName(), "Название не обновилось");
-        assertNotEquals(descriptionExpected, epic.getDescription(), "Описание не обновилось");
+        String expectedBody = """
+                {
+                  "subtasks": {},
+                  "name": "Задача 2",
+                  "description": "Задача 2",
+                  "id": 1,
+                  "status": "NEW",
+                  "duration": 0
+                }""";
+
+        assertNotNull(responseUpdate.body(), "Задача не возвращается");
+        assertEquals(expectedBody, responseUpdate.body(), "Некорректно выводится задача");
     }
 
     @Test
@@ -348,95 +488,46 @@ public class HttpTaskServerTest {
         assertNotEquals(durationExpectedEpic, epic1.getDuration(), "Продолжительность эпика выполнения не обновилась");
     }
 
-
     @Test
     void removeTaskTest() throws IOException, InterruptedException {
-        Task task = new Task("Задача 1", "Задача 1", LocalDateTime.of(2024, 7, 20, 15, 30), Duration.ofMinutes(30));
-        Gson gson = getGson();
-        String taskJson = gson.toJson(task);
-
-        HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/TaskManager/tasks");
-        HttpRequest request = getRequestPOST(taskJson, url);
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Неверный код ответа");
+        addTaskTest();
 
         List<Task> tasksFromManager = manager.getAllTasks();
 
-        assertNotNull(tasksFromManager, "Задачи не возвращаются");
-        assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
-        assertEquals("Задача 1", tasksFromManager.getFirst().getName(), "Некорректное имя задачи");
-
+        HttpClient client = HttpClient.newHttpClient();
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/1");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
-
         HttpResponse<String> responseDelete = client.send(requestDelete, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseDelete.statusCode(), "Неверный код ответа");
 
         List<Task> tasksFromManagerDelete = manager.getAllTasks();
 
-        assertNotEquals(1, tasksFromManagerDelete.size(), "Задача не удалена");
+        assertEquals(tasksFromManager.size() - 1, tasksFromManagerDelete.size(), "Задача не удалена");
     }
 
     @Test
     void removeEpicTest() throws IOException, InterruptedException {
-        Epic epic = new Epic("Задача 1", "Задача 1");
-        Gson gson = getGson();
-        String taskJson = gson.toJson(epic);
-
+        addEpicTest();
         HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/TaskManager/epics");
-        HttpRequest request = getRequestPOST(taskJson, url);
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Неверный код ответа");
 
         List<Epic> tasksFromManager = manager.getAllEpics();
 
-        assertNotNull(tasksFromManager, "Задачи не возвращаются");
-        assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
-        assertEquals("Задача 1", tasksFromManager.getFirst().getName(), "Некорректное имя задачи");
-
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/epics/1");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
-
         HttpResponse<String> responseDelete = client.send(requestDelete, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseDelete.statusCode(), "Неверный код ответа");
 
         List<Epic> tasksFromManagerDelete = manager.getAllEpics();
 
-        assertNotEquals(1, tasksFromManagerDelete.size(), "Задача не удалена");
+        assertEquals(tasksFromManager.size() - 1, tasksFromManagerDelete.size(), "Задача не удалена");
     }
 
     @Test
     void removeSubtaskTest() throws IOException, InterruptedException {
-        Epic epic = new Epic("Задача 1", "Задача 1");
-        Gson gson = getGson();
-        String taskJson = gson.toJson(epic);
-
+        addSubtasksTest();
         HttpClient client = HttpClient.newHttpClient();
 
-        URI url = URI.create("http://localhost:8080/TaskManager/epics");
-        HttpRequest request = getRequestPOST(taskJson, url);
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode(), "Неверный код ответа");
-
-        Subtask subtask = new Subtask("Задача 2", "Задача 2", 1, LocalDateTime.of(2024, 7, 20, 15, 30), Duration.ofMinutes(30));
-        String taskJson1 = gson.toJson(subtask);
-
-        URI url1 = URI.create("http://localhost:8080/TaskManager/subtasks");
-        HttpRequest request1 = getRequestPOST(taskJson1, url1);
-
-        HttpResponse<String> response1 = client.send(request1, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response1.statusCode(), "Неверный код ответа");
-
         List<Subtask> tasksFromManager = manager.getAllSubtasks();
-
-        assertNotNull(tasksFromManager, "Задачи не возвращаются");
-        assertEquals(1, tasksFromManager.size(), "Некорректное количество задач");
-        assertEquals("Задача 2", tasksFromManager.getFirst().getName(), "Некорректное имя задачи");
 
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/subtasks/2");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
@@ -446,48 +537,15 @@ public class HttpTaskServerTest {
 
         List<Subtask> tasksFromManagerDelete = manager.getAllSubtasks();
 
-        assertNotEquals(1, tasksFromManagerDelete.size(), "Задача не удалена");
+        assertEquals(tasksFromManager.size() - 1, tasksFromManagerDelete.size(), "Задача не удалена");
     }
-
 
     @Test
     void getPrioritizedTasksTest() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
-        Gson gson = getGson();
 
-        Task task1 = new Task("1-я задача", "Описание 1-ой задачи",
-                LocalDateTime.of(2024, 7, 20, 10, 30), Duration.ofMinutes(30));
-        String taskJson1 = gson.toJson(task1);
-        URI urlTask = URI.create("http://localhost:8080/TaskManager/tasks");
-        HttpRequest requestTask1 = getRequestPOST(taskJson1, urlTask);
-        HttpResponse<String> responseTask1 = client.send(requestTask1, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, responseTask1.statusCode(), "Неверный код ответа");
-
-
-        Task task2 = new Task("2-я задача", "Описание 2-ой задачи",
-                LocalDateTime.of(2024, 7, 20, 12, 0), Duration.ofMinutes(30));
-        String taskJson2 = gson.toJson(task2);
-        HttpRequest requestTask2 = getRequestPOST(taskJson2, urlTask);
-        HttpResponse<String> responseTask2 = client.send(requestTask2, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, responseTask2.statusCode(), "Неверный код ответа");
-
-
-        Epic epic = new Epic("1-й эпик", "Описание 1-го эпика");
-        String epicJson = gson.toJson(epic);
-        URI urlEpic = URI.create("http://localhost:8080/TaskManager/epics");
-        HttpRequest requestEpic = getRequestPOST(epicJson, urlEpic);
-        HttpResponse<String> responseEpic = client.send(requestEpic, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, responseEpic.statusCode(), "Неверный код ответа");
-
-
-        Subtask subtask3 = new Subtask("1-я подзадача", "Описание 1-ой подзадачи", 3,
-                LocalDateTime.of(2024, 7, 21, 15, 30), Duration.ofMinutes(90));
-        String subtaskJson = gson.toJson(subtask3);
-        URI urlSubtask = URI.create("http://localhost:8080/TaskManager/subtasks");
-        HttpRequest requestSubtask = getRequestPOST(subtaskJson, urlSubtask);
-        HttpResponse<String> responseSubtask = client.send(requestSubtask, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, responseSubtask.statusCode(), "Неверный код ответа");
-
+        addSubtasksTest();
+        addTaskTest();
 
         URI url = URI.create("http://localhost:8080/TaskManager/prioritized");
         HttpRequest request = getRequestGET(url);
@@ -497,35 +555,44 @@ public class HttpTaskServerTest {
         String expectedBody = """
                 [
                   {
-                    "name": "1-я задача",
-                    "description": "Описание 1-ой задачи",
-                    "id": 1,
-                    "status": "NEW",
-                    "duration": 30,
-                    "startTime": "2024-07-20T10:30"
-                  },
-                  {
-                    "name": "2-я задача",
-                    "description": "Описание 2-ой задачи",
+                    "epicId": 1,
+                    "name": "1-я подзадача",
+                    "description": "описание 1",
                     "id": 2,
                     "status": "NEW",
                     "duration": 30,
-                    "startTime": "2024-07-20T12:00"
+                    "startTime": "2024-07-20T15:30"
                   },
                   {
-                    "epicId": 3,
-                    "name": "1-я подзадача",
-                    "description": "Описание 1-ой подзадачи",
-                    "id": 4,
+                    "epicId": 1,
+                    "name": "2-я подзадача",
+                    "description": "описание 2",
+                    "id": 3,
                     "status": "NEW",
                     "duration": 90,
-                    "startTime": "2024-07-21T15:30"
+                    "startTime": "2024-07-20T16:30"
+                  },
+                  {
+                    "name": "Таск 1",
+                    "description": "Тест таск 1",
+                    "id": 4,
+                    "status": "NEW",
+                    "duration": 5,
+                    "startTime": "2024-07-26T12:00"
+                  },
+                  {
+                    "name": "Таск 2",
+                    "description": "Тест таск 2",
+                    "id": 5,
+                    "status": "NEW",
+                    "duration": 5,
+                    "startTime": "2024-07-26T13:00"
                   }
                 ]""";
 
         assertEquals(expectedBody, response.body(), "Ошибка сортировки при добавлении задач");
 
-        URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/2");
+        URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/4");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
         HttpResponse<String> responseDelete = client.send(requestDelete, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseDelete.statusCode(), "Неверный код ответа");
@@ -538,21 +605,30 @@ public class HttpTaskServerTest {
         String expectedBodyAfterDelete = """
                 [
                   {
-                    "name": "1-я задача",
-                    "description": "Описание 1-ой задачи",
-                    "id": 1,
+                    "epicId": 1,
+                    "name": "1-я подзадача",
+                    "description": "описание 1",
+                    "id": 2,
                     "status": "NEW",
                     "duration": 30,
-                    "startTime": "2024-07-20T10:30"
+                    "startTime": "2024-07-20T15:30"
                   },
                   {
-                    "epicId": 3,
-                    "name": "1-я подзадача",
-                    "description": "Описание 1-ой подзадачи",
-                    "id": 4,
+                    "epicId": 1,
+                    "name": "2-я подзадача",
+                    "description": "описание 2",
+                    "id": 3,
                     "status": "NEW",
                     "duration": 90,
-                    "startTime": "2024-07-21T15:30"
+                    "startTime": "2024-07-20T16:30"
+                  },
+                  {
+                    "name": "Таск 2",
+                    "description": "Тест таск 2",
+                    "id": 5,
+                    "status": "NEW",
+                    "duration": 5,
+                    "startTime": "2024-07-26T13:00"
                   }
                 ]""";
 
@@ -562,44 +638,20 @@ public class HttpTaskServerTest {
     @Test
     void getHistoryTest() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
-        Gson gson = getGson();
+        addSubtasksTest();
+        addTaskTest();
 
-        Task task1 = new Task("1-я задача", "Описание 1-ой задачи",
-                LocalDateTime.of(2024, 7, 20, 10, 30), Duration.ofMinutes(30));
-        String taskJson1 = gson.toJson(task1);
-        URI urlTask = URI.create("http://localhost:8080/TaskManager/tasks");
-        HttpRequest requestTask1 = getRequestPOST(taskJson1, urlTask);
-        HttpResponse<String> responseTask1 = client.send(requestTask1, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, responseTask1.statusCode(), "Неверный код ответа");
-
-
-        Epic epic = new Epic("1-й эпик", "Описание 1-го эпика");
-        String epicJson = gson.toJson(epic);
-        URI urlEpic = URI.create("http://localhost:8080/TaskManager/epics");
-        HttpRequest requestEpic = getRequestPOST(epicJson, urlEpic);
-        HttpResponse<String> responseEpic = client.send(requestEpic, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, responseEpic.statusCode(), "Неверный код ответа");
-
-
-        Subtask subtask3 = new Subtask("1-я подзадача", "Описание 1-ой подзадачи", 2,
-                LocalDateTime.of(2024, 7, 21, 15, 30), Duration.ofMinutes(90));
-        String subtaskJson = gson.toJson(subtask3);
-        URI urlSubtask = URI.create("http://localhost:8080/TaskManager/subtasks");
-        HttpRequest requestSubtask = getRequestPOST(subtaskJson, urlSubtask);
-        HttpResponse<String> responseSubtask = client.send(requestSubtask, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, responseSubtask.statusCode(), "Неверный код ответа");
-
-        URI urlTaskGet = URI.create("http://localhost:8080/TaskManager/tasks/1");
+        URI urlTaskGet = URI.create("http://localhost:8080/TaskManager/tasks/4");
         HttpRequest requestGetTask = getRequestGET(urlTaskGet);
         HttpResponse<String> responseGetTask = client.send(requestGetTask, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseGetTask.statusCode(), "Неверный код ответа");
 
-        URI urlEpicGet = URI.create("http://localhost:8080/TaskManager/epics/2");
+        URI urlEpicGet = URI.create("http://localhost:8080/TaskManager/epics/1");
         HttpRequest requestGetEpic = getRequestGET(urlEpicGet);
         HttpResponse<String> responseGetEpic = client.send(requestGetEpic, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseGetEpic.statusCode(), "Неверный код ответа");
 
-        URI urlSubtaskGet = URI.create("http://localhost:8080/TaskManager/subtasks/3");
+        URI urlSubtaskGet = URI.create("http://localhost:8080/TaskManager/subtasks/2");
         HttpRequest requestGetSubtask = getRequestGET(urlSubtaskGet);
         HttpResponse<String> responseGetSubtask = client.send(requestGetSubtask, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseGetSubtask.statusCode(), "Неверный код ответа");
@@ -612,46 +664,55 @@ public class HttpTaskServerTest {
         String expectedBody = """
                 [
                   {
-                    "name": "1-я задача",
-                    "description": "Описание 1-ой задачи",
-                    "id": 1,
+                    "name": "Таск 1",
+                    "description": "Тест таск 1",
+                    "id": 4,
                     "status": "NEW",
-                    "duration": 30,
-                    "startTime": "2024-07-20T10:30"
+                    "duration": 5,
+                    "startTime": "2024-07-26T12:00"
                   },
                   {
                     "subtasks": {
-                      "3": {
-                        "epicId": 2,
+                      "2": {
+                        "epicId": 1,
                         "name": "1-я подзадача",
-                        "description": "Описание 1-ой подзадачи",
+                        "description": "описание 1",
+                        "id": 2,
+                        "status": "NEW",
+                        "duration": 30,
+                        "startTime": "2024-07-20T15:30"
+                      },
+                      "3": {
+                        "epicId": 1,
+                        "name": "2-я подзадача",
+                        "description": "описание 2",
                         "id": 3,
                         "status": "NEW",
                         "duration": 90,
-                        "startTime": "2024-07-21T15:30"
+                        "startTime": "2024-07-20T16:30"
                       }
                     },
-                    "name": "1-й эпик",
-                    "description": "Описание 1-го эпика",
-                    "id": 2,
+                    "name": "Эпик 1",
+                    "description": "Тест эпик 1",
+                    "id": 1,
                     "status": "NEW",
-                    "duration": 90,
-                    "startTime": "2024-07-21T15:30"
+                    "duration": 120,
+                    "startTime": "2024-07-20T15:30"
                   },
                   {
-                    "epicId": 2,
+                    "epicId": 1,
                     "name": "1-я подзадача",
-                    "description": "Описание 1-ой подзадачи",
-                    "id": 3,
+                    "description": "описание 1",
+                    "id": 2,
                     "status": "NEW",
-                    "duration": 90,
-                    "startTime": "2024-07-21T15:30"
+                    "duration": 30,
+                    "startTime": "2024-07-20T15:30"
                   }
                 ]""";
 
         assertEquals(expectedBody, response.body(), "Ошибка сортировки при добавлении задач");
 
-        URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/1");
+        URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/4");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
         HttpResponse<String> responseDelete = client.send(requestDelete, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, responseDelete.statusCode(), "Неверный код ответа");
@@ -665,31 +726,40 @@ public class HttpTaskServerTest {
                 [
                   {
                     "subtasks": {
-                      "3": {
-                        "epicId": 2,
+                      "2": {
+                        "epicId": 1,
                         "name": "1-я подзадача",
-                        "description": "Описание 1-ой подзадачи",
+                        "description": "описание 1",
+                        "id": 2,
+                        "status": "NEW",
+                        "duration": 30,
+                        "startTime": "2024-07-20T15:30"
+                      },
+                      "3": {
+                        "epicId": 1,
+                        "name": "2-я подзадача",
+                        "description": "описание 2",
                         "id": 3,
                         "status": "NEW",
                         "duration": 90,
-                        "startTime": "2024-07-21T15:30"
+                        "startTime": "2024-07-20T16:30"
                       }
                     },
-                    "name": "1-й эпик",
-                    "description": "Описание 1-го эпика",
-                    "id": 2,
+                    "name": "Эпик 1",
+                    "description": "Тест эпик 1",
+                    "id": 1,
                     "status": "NEW",
-                    "duration": 90,
-                    "startTime": "2024-07-21T15:30"
+                    "duration": 120,
+                    "startTime": "2024-07-20T15:30"
                   },
                   {
-                    "epicId": 2,
+                    "epicId": 1,
                     "name": "1-я подзадача",
-                    "description": "Описание 1-ой подзадачи",
-                    "id": 3,
+                    "description": "описание 1",
+                    "id": 2,
                     "status": "NEW",
-                    "duration": 90,
-                    "startTime": "2024-07-21T15:30"
+                    "duration": 30,
+                    "startTime": "2024-07-20T15:30"
                   }
                 ]""";
         assertEquals(expectedBodyAfterDelete, response2.body(), "Ошибка сортировки при добавлении задач");
