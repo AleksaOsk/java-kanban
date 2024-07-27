@@ -103,10 +103,11 @@ public class BaseHttpHandler implements HttpHandler {
                 return;
             case subtasks:
                 Subtask subtask = gson.fromJson(requestBody, Subtask.class);
-                if (subtask.getEpicId() != null || subtask.getEpicId() <= 0) {
+                //сразу проверяем на наличие корректного epicId
+                if ((subtask.getEpicId() != null) && (taskManager.getEpicById(subtask.getEpicId()) != null)) {
                     subtaskHttpHandler.handlePost(exchange, type, pathArray, subtask);
                 } else {
-                    writeResponse("Вы не добавили epicId, задача не сохранена", exchange, 404);
+                    writeResponse("Вы не добавили или ввели некорректный epicId, задача не сохранена", exchange, 404);
                 }
                 return;
             case epics:

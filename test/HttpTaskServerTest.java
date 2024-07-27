@@ -138,7 +138,6 @@ public class HttpTaskServerTest {
         Subtask subtask2 = new Subtask("2-я подзадача", "описание 2", 1,
                 LocalDateTime.of(2024, 7, 20, 16, 30), Duration.ofMinutes(90));
 
-
         String task1Json = gson.toJson(subtask1);
         String task2Json = gson.toJson(subtask2);
 
@@ -189,7 +188,6 @@ public class HttpTaskServerTest {
 
         assertNotNull(responseGet.body(), "Задачи не возвращаются");
         assertEquals(expectedBody, responseGet.body(), "Некорректно выводятся задачи");
-
     }
 
     @Test
@@ -537,7 +535,7 @@ public class HttpTaskServerTest {
 
         List<Subtask> tasksFromManagerDelete = manager.getAllSubtasks();
 
-        assertEquals(tasksFromManager.size() - 1, tasksFromManagerDelete.size(), "Задача не удалена");
+        assertEquals(tasksFromManager.size()-1, tasksFromManagerDelete.size(), "Задача не удалена");
     }
 
     @Test
@@ -553,42 +551,42 @@ public class HttpTaskServerTest {
         assertEquals(200, response.statusCode(), "Неверный код ответа");
 
         String expectedBody = """
-                [
-                  {
-                    "epicId": 1,
-                    "name": "1-я подзадача",
-                    "description": "описание 1",
-                    "id": 2,
-                    "status": "NEW",
-                    "duration": 30,
-                    "startTime": "2024-07-20T15:30"
-                  },
-                  {
-                    "epicId": 1,
-                    "name": "2-я подзадача",
-                    "description": "описание 2",
-                    "id": 3,
-                    "status": "NEW",
-                    "duration": 90,
-                    "startTime": "2024-07-20T16:30"
-                  },
-                  {
-                    "name": "Таск 1",
-                    "description": "Тест таск 1",
-                    "id": 4,
-                    "status": "NEW",
-                    "duration": 5,
-                    "startTime": "2024-07-26T12:00"
-                  },
-                  {
-                    "name": "Таск 2",
-                    "description": "Тест таск 2",
-                    "id": 5,
-                    "status": "NEW",
-                    "duration": 5,
-                    "startTime": "2024-07-26T13:00"
-                  }
-                ]""";
+                 [
+                   {
+                     "epicId": 1,
+                     "name": "1-я подзадача",
+                     "description": "описание 1",
+                     "id": 2,
+                     "status": "NEW",
+                     "duration": 30,
+                     "startTime": "2024-07-20T15:30"
+                   },
+                   {
+                     "epicId": 1,
+                     "name": "2-я подзадача",
+                     "description": "описание 2",
+                     "id": 3,
+                     "status": "NEW",
+                     "duration": 90,
+                     "startTime": "2024-07-20T16:30"
+                   },
+                   {
+                     "name": "Таск 1",
+                     "description": "Тест таск 1",
+                     "id": 4,
+                     "status": "NEW",
+                     "duration": 5,
+                     "startTime": "2024-07-26T12:00"
+                   },
+                   {
+                     "name": "Таск 2",
+                     "description": "Тест таск 2",
+                     "id": 5,
+                     "status": "NEW",
+                     "duration": 5,
+                     "startTime": "2024-07-26T13:00"
+                   }
+                 ]""";
 
         assertEquals(expectedBody, response.body(), "Ошибка сортировки при добавлении задач");
 
@@ -603,34 +601,34 @@ public class HttpTaskServerTest {
         assertEquals(200, response2.statusCode(), "Неверный код ответа");
 
         String expectedBodyAfterDelete = """
-                [
-                  {
-                    "epicId": 1,
-                    "name": "1-я подзадача",
-                    "description": "описание 1",
-                    "id": 2,
-                    "status": "NEW",
-                    "duration": 30,
-                    "startTime": "2024-07-20T15:30"
-                  },
-                  {
-                    "epicId": 1,
-                    "name": "2-я подзадача",
-                    "description": "описание 2",
-                    "id": 3,
-                    "status": "NEW",
-                    "duration": 90,
-                    "startTime": "2024-07-20T16:30"
-                  },
-                  {
-                    "name": "Таск 2",
-                    "description": "Тест таск 2",
-                    "id": 5,
-                    "status": "NEW",
-                    "duration": 5,
-                    "startTime": "2024-07-26T13:00"
-                  }
-                ]""";
+                 [
+                   {
+                     "epicId": 1,
+                     "name": "1-я подзадача",
+                     "description": "описание 1",
+                     "id": 2,
+                     "status": "NEW",
+                     "duration": 30,
+                     "startTime": "2024-07-20T15:30"
+                   },
+                   {
+                     "epicId": 1,
+                     "name": "2-я подзадача",
+                     "description": "описание 2",
+                     "id": 3,
+                     "status": "NEW",
+                     "duration": 90,
+                     "startTime": "2024-07-20T16:30"
+                   },
+                   {
+                     "name": "Таск 2",
+                     "description": "Тест таск 2",
+                     "id": 5,
+                     "status": "NEW",
+                     "duration": 5,
+                     "startTime": "2024-07-26T13:00"
+                   }
+                 ]""";
 
         assertEquals(expectedBodyAfterDelete, response2.body(), "Ошибка сортировки при добавлении задач");
     }
@@ -662,53 +660,53 @@ public class HttpTaskServerTest {
         assertEquals(200, response.statusCode(), "Неверный код ответа");
 
         String expectedBody = """
-                [
-                  {
-                    "name": "Таск 1",
-                    "description": "Тест таск 1",
-                    "id": 4,
-                    "status": "NEW",
-                    "duration": 5,
-                    "startTime": "2024-07-26T12:00"
-                  },
-                  {
-                    "subtasks": {
-                      "2": {
-                        "epicId": 1,
-                        "name": "1-я подзадача",
-                        "description": "описание 1",
-                        "id": 2,
-                        "status": "NEW",
-                        "duration": 30,
-                        "startTime": "2024-07-20T15:30"
-                      },
-                      "3": {
-                        "epicId": 1,
-                        "name": "2-я подзадача",
-                        "description": "описание 2",
-                        "id": 3,
-                        "status": "NEW",
-                        "duration": 90,
-                        "startTime": "2024-07-20T16:30"
-                      }
-                    },
-                    "name": "Эпик 1",
-                    "description": "Тест эпик 1",
-                    "id": 1,
-                    "status": "NEW",
-                    "duration": 120,
-                    "startTime": "2024-07-20T15:30"
-                  },
-                  {
-                    "epicId": 1,
-                    "name": "1-я подзадача",
-                    "description": "описание 1",
-                    "id": 2,
-                    "status": "NEW",
-                    "duration": 30,
-                    "startTime": "2024-07-20T15:30"
-                  }
-                ]""";
+                 [
+                   {
+                     "name": "Таск 1",
+                     "description": "Тест таск 1",
+                     "id": 4,
+                     "status": "NEW",
+                     "duration": 5,
+                     "startTime": "2024-07-26T12:00"
+                   },
+                   {
+                     "subtasks": {
+                       "2": {
+                         "epicId": 1,
+                         "name": "1-я подзадача",
+                         "description": "описание 1",
+                         "id": 2,
+                         "status": "NEW",
+                         "duration": 30,
+                         "startTime": "2024-07-20T15:30"
+                       },
+                       "3": {
+                         "epicId": 1,
+                         "name": "2-я подзадача",
+                         "description": "описание 2",
+                         "id": 3,
+                         "status": "NEW",
+                         "duration": 90,
+                         "startTime": "2024-07-20T16:30"
+                       }
+                     },
+                     "name": "Эпик 1",
+                     "description": "Тест эпик 1",
+                     "id": 1,
+                     "status": "NEW",
+                     "duration": 120,
+                     "startTime": "2024-07-20T15:30"
+                   },
+                   {
+                     "epicId": 1,
+                     "name": "1-я подзадача",
+                     "description": "описание 1",
+                     "id": 2,
+                     "status": "NEW",
+                     "duration": 30,
+                     "startTime": "2024-07-20T15:30"
+                   }
+                 ]""";
 
         assertEquals(expectedBody, response.body(), "Ошибка сортировки при добавлении задач");
 
@@ -723,45 +721,45 @@ public class HttpTaskServerTest {
         assertEquals(200, response2.statusCode(), "Неверный код ответа");
 
         String expectedBodyAfterDelete = """
-                [
-                  {
-                    "subtasks": {
-                      "2": {
-                        "epicId": 1,
-                        "name": "1-я подзадача",
-                        "description": "описание 1",
-                        "id": 2,
-                        "status": "NEW",
-                        "duration": 30,
-                        "startTime": "2024-07-20T15:30"
-                      },
-                      "3": {
-                        "epicId": 1,
-                        "name": "2-я подзадача",
-                        "description": "описание 2",
-                        "id": 3,
-                        "status": "NEW",
-                        "duration": 90,
-                        "startTime": "2024-07-20T16:30"
-                      }
-                    },
-                    "name": "Эпик 1",
-                    "description": "Тест эпик 1",
-                    "id": 1,
-                    "status": "NEW",
-                    "duration": 120,
-                    "startTime": "2024-07-20T15:30"
-                  },
-                  {
-                    "epicId": 1,
-                    "name": "1-я подзадача",
-                    "description": "описание 1",
-                    "id": 2,
-                    "status": "NEW",
-                    "duration": 30,
-                    "startTime": "2024-07-20T15:30"
-                  }
-                ]""";
+                 [
+                   {
+                     "subtasks": {
+                       "2": {
+                         "epicId": 1,
+                         "name": "1-я подзадача",
+                         "description": "описание 1",
+                         "id": 2,
+                         "status": "NEW",
+                         "duration": 30,
+                         "startTime": "2024-07-20T15:30"
+                       },
+                       "3": {
+                         "epicId": 1,
+                         "name": "2-я подзадача",
+                         "description": "описание 2",
+                         "id": 3,
+                         "status": "NEW",
+                         "duration": 90,
+                         "startTime": "2024-07-20T16:30"
+                       }
+                     },
+                     "name": "Эпик 1",
+                     "description": "Тест эпик 1",
+                     "id": 1,
+                     "status": "NEW",
+                     "duration": 120,
+                     "startTime": "2024-07-20T15:30"
+                   },
+                   {
+                     "epicId": 1,
+                     "name": "1-я подзадача",
+                     "description": "описание 1",
+                     "id": 2,
+                     "status": "NEW",
+                     "duration": 30,
+                     "startTime": "2024-07-20T15:30"
+                   }
+                 ]""";
         assertEquals(expectedBodyAfterDelete, response2.body(), "Ошибка сортировки при добавлении задач");
     }
 }

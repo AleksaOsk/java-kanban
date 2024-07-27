@@ -24,7 +24,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     @Test
     public void subtaskCanNotBeEpicToItself() {
         Subtask subtask = manager.createSubtask(new Subtask("", "", 0, null, Duration.ofMinutes(0)));
-        Assertions.assertNull(subtask.getId());
+        Assertions.assertEquals(0,manager.getAllSubtasks().size());
     }
 
     @Test

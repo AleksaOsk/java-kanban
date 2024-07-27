@@ -33,6 +33,7 @@ public class TaskHttpHandler extends BaseHttpHandler {
     protected void handlePost(HttpExchange exchange, TypeRequest type, String[] pathArray, Task task) throws IOException {
         if (pathArray.length == 3) {
             Task createdTask = create(type, task);
+            //если метод создания задачи/подзадачи возвращает null, значит задача пересекается по времени с созданной задачей
             if (createdTask != null) {
                 writeResponse(createdTask, exchange, 201);
             } else {
@@ -41,6 +42,7 @@ public class TaskHttpHandler extends BaseHttpHandler {
         } else if (pathArray.length == 4) {
             task.setId(Integer.valueOf(pathArray[3]));
             Task updateTask = update(type, task);
+            //если метод апдейта задачи/подзадачи возвращает null, значит задача пересекается по времени с созданной задачей
             if (updateTask != null) {
                 writeResponse(updateTask, exchange, 201);
             } else {
