@@ -24,14 +24,14 @@ public class Subtask extends Task {
     @Override
     public String toString() {
         return "Subtask{" +
-                "id=" + getId() +
-                ", name='" + getName() + '\'' +
-                ", description='" + getStatus() + '\'' +
-                ", status=" + getStatus() +
-                ", startTime=" + getStartTime() +
-                ", endTime=" + getEndTime() +
-                ", duration=" + getDuration() +
-                ", epicId=" + epicId +
-                "}\n";
+               "id=" + getId() +
+               ", name='" + getName() + '\'' +
+               ", description='" + getDescription() + '\'' +
+               ", status=" + getStatus() +
+               ", startTime=" + getStartTime() +
+               ", endTime=" + getEndTime() +
+               ", duration=" + getDuration() +
+               ", epicId=" + epicId +
+               "}\n";
     }
 }

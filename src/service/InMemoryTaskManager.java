@@ -3,11 +3,9 @@ package service;
 import entities.Epic;
 import entities.Subtask;
 import entities.Task;
-import exceptions.TimeConflictException;
 import util.Managers;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -17,12 +15,6 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     protected final HistoryManager historyManager = Managers.getDefaultHistory();
     private Integer idCounter = 1;
-
-    //тут просто выводится на экран в любое время без обновления сета,
-    // если не было добавления, обновления и удаления задач
-    public static TreeSet<Task> getPrioritizedTasks() {
-        return treeSet;
-    }
 
     @Override
     public List<Task> getAllTasks() {
@@ -94,18 +86,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task createTask(Task newTask) {
-        try {
-            if (timeConflict(newTask)) {
-                throw new TimeConflictException("Задачи пересекаются во времени");
-            }
-            newTask.setId(idCounter++);
-            tasks.put(newTask.getId(), new Task(newTask));
-            prioritizedTasks();
-            return newTask;
-
-        } catch (TimeConflictException ex) {
+        //в случае пересечения возвращается null
+        if (timeConflict(newTask)) {
             return null;
         }
+        newTask.setId(idCounter++);
+        tasks.put(newTask.getId(), new Task(newTask));
+        prioritizedTasks();
+        return newTask;
     }
 
     @Override
@@ -118,39 +106,36 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask createSubtask(Subtask newSubtask) {
-        try {
+        // сначала проверяем что такой epic есть, потом вроверяем пересечение
+        if (epics.containsKey(newSubtask.getEpicId())) {
             if (timeConflict(newSubtask)) {
-                throw new TimeConflictException("Задачи пересекаются во времени");
+                return null;
             }
-            // проверка на корректность epicId
-            if (epics.containsKey(newSubtask.getEpicId())) {
-                newSubtask.setId(idCounter++);
-                subtasks.put(newSubtask.getId(), new Subtask(newSubtask));
-                Epic epic = epics.get(newSubtask.getEpicId());
-                epic.addSubtask(subtasks.get(newSubtask.getId()));
-                epic.updateStatus();
-                prioritizedTasks();
-            }
+            newSubtask.setId(idCounter++);
+            subtasks.put(newSubtask.getId(), new Subtask(newSubtask));
+            Epic epic = epics.get(newSubtask.getEpicId());
+            epic.addSubtask(subtasks.get(newSubtask.getId()));
+            epic.updateStatus();
+            prioritizedTasks();
+            epic.getDuration();
+            epic.getStartTime();
+            epic.getEndTime();
             return newSubtask;
-        } catch (TimeConflictException ex) {
-            return null;
         }
+        return null;
     }
 
     @Override
     public Task updateTask(Task newTask) {
-        try {
-            if (!timeConflict(newTask)) {
-                if (tasks.containsKey(newTask.getId())) {
-                    tasks.put(newTask.getId(), new Task(newTask));
-                    prioritizedTasks();
-                    return newTask;
-                }
+        if (tasks.containsKey(newTask.getId())) {
+            if (timeConflict(newTask)) {
+                return null;
             }
-            return tasks.get(newTask.getId());
-        } catch (TimeConflictException ex) {
-            throw new TimeConflictException("Задачи пересекаются во времени");
+            tasks.put(newTask.getId(), new Task(newTask));
+            prioritizedTasks();
+            return newTask;
         }
+        return tasks.get(newTask.getId());
     }
 
     @Override
@@ -164,27 +149,23 @@ public class InMemoryTaskManager implements TaskManager {
 
             return new Epic(epic);
         }
-
-        return newEpic;
+        return null;
     }
 
     @Override
     public Subtask updateSubtask(Subtask newSubtask) {
-        try {
-            if (!timeConflict(newSubtask)) {
-                if (subtasks.containsKey(newSubtask.getId()) && epics.containsKey(newSubtask.getEpicId())) {
-                    subtasks.put(newSubtask.getId(), new Subtask(newSubtask));
-                    Epic epic = epics.get(newSubtask.getEpicId());
-                    epic.updateSubtask(subtasks.get(newSubtask.getId()));
-                    epic.updateStatus();
-                    prioritizedTasks();
-                    return newSubtask;
-                }
+        if (subtasks.containsKey(newSubtask.getId()) && epics.containsKey(newSubtask.getEpicId())) {
+            if (timeConflict(newSubtask)) {
+                return null;
             }
-            return subtasks.get(newSubtask.getId());
-        } catch (TimeConflictException ex) {
-            throw new TimeConflictException("Задачи пересекаются во времени");
+            subtasks.put(newSubtask.getId(), new Subtask(newSubtask));
+            Epic epic = epics.get(newSubtask.getEpicId());
+            epic.updateSubtask(subtasks.get(newSubtask.getId()));
+            epic.updateStatus();
+            prioritizedTasks();
+            return newSubtask;
         }
+        return subtasks.get(newSubtask.getId());
     }
 
     @Override
@@ -206,7 +187,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeEpicById(Integer id) {
         if (epics.containsKey(id)) {
-            epics.get(id).getSubtasks().stream().map(Task::getId).forEach(subtasks::remove);
+            if (epics.get(id).getSubtasks() != null) {
+                for (Subtask subtask : epics.get(id).getSubtasks()) {
+                    Integer subtaskId = subtask.getId();
+                    subtasks.remove(subtaskId);
+                }
+            }
             epics.remove(id);
             historyManager.remove(id);
             prioritizedTasks();
@@ -230,10 +216,8 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    public List<Task> getSubtasksEpic(Integer id) {
-        return epics.get(id).getSubtasks().stream()
-                .map(subtasks::get)
-                .collect(Collectors.toList());
+    public static TreeSet<Task> getPrioritizedTasks() {
+        return treeSet;
     }
 
     //тут TreeSet очищается и заполняется заново при добавлении, обновлении и удалении задач
@@ -254,9 +238,9 @@ public class InMemoryTaskManager implements TaskManager {
             for (Task task2 : treeSet) {
                 if (
                         task1.getStartTime().isEqual(task2.getStartTime())
-                                || (task1.getStartTime().isAfter(task2.getStartTime()) && task1.getStartTime().isBefore(task2.getEndTime()))
-                                || (task1.getEndTime().isAfter(task2.getStartTime()) && task1.getEndTime().isBefore(task2.getEndTime()))
-                                || (task2.getStartTime().isAfter(task1.getStartTime()) && task2.getStartTime().isBefore(task1.getEndTime()))
+                        || (task1.getStartTime().isAfter(task2.getStartTime()) && task1.getStartTime().isBefore(task2.getEndTime()))
+                        || (task1.getEndTime().isAfter(task2.getStartTime()) && task1.getEndTime().isBefore(task2.getEndTime()))
+                        || (task2.getStartTime().isAfter(task1.getStartTime()) && task2.getStartTime().isBefore(task1.getEndTime()))
                 ) {
                     if (task1.getId() != null) {
                         return !task1.getId().equals(task2.getId());
@@ -268,13 +252,3 @@ public class InMemoryTaskManager implements TaskManager {
         return false;
     }
 }
-
-
-
-
-
-
-
-
-
-
