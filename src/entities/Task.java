@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
+    private Integer id;
     private String name;
     private String description;
-    private Integer id;
     private Status status;
     private Duration duration;
     private LocalDateTime startTime;

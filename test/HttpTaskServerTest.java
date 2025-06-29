@@ -169,17 +169,17 @@ public class HttpTaskServerTest {
         String expectedBody = """
                 [
                   {
+                    "id": 1,
                     "name": "Таск 1",
                     "description": "Тест таск 1",
-                    "id": 1,
                     "status": "NEW",
                     "duration": 5,
                     "startTime": "2024-07-26T12:00"
                   },
                   {
+                    "id": 2,
                     "name": "Таск 2",
                     "description": "Тест таск 2",
-                    "id": 2,
                     "status": "NEW",
                     "duration": 5,
                     "startTime": "2024-07-26T13:00"
@@ -205,18 +205,18 @@ public class HttpTaskServerTest {
                 [
                   {
                     "epicId": 1,
+                    "id": 2,
                     "name": "1-я подзадача",
                     "description": "описание 1",
-                    "id": 2,
                     "status": "NEW",
                     "duration": 30,
                     "startTime": "2024-07-20T15:30"
                   },
                   {
                     "epicId": 1,
+                    "id": 3,
                     "name": "2-я подзадача",
                     "description": "описание 2",
-                    "id": 3,
                     "status": "NEW",
                     "duration": 90,
                     "startTime": "2024-07-20T16:30"
@@ -247,35 +247,35 @@ public class HttpTaskServerTest {
                     "subtasks": {
                       "2": {
                         "epicId": 1,
+                        "id": 2,
                         "name": "1-я подзадача",
                         "description": "описание 1",
-                        "id": 2,
                         "status": "NEW",
                         "duration": 30,
                         "startTime": "2024-07-20T15:30"
                       },
                       "3": {
                         "epicId": 1,
+                        "id": 3,
                         "name": "2-я подзадача",
                         "description": "описание 2",
-                        "id": 3,
                         "status": "NEW",
                         "duration": 90,
                         "startTime": "2024-07-20T16:30"
                       }
                     },
+                    "id": 1,
                     "name": "Эпик 1",
                     "description": "Тест эпик 1",
-                    "id": 1,
                     "status": "NEW",
                     "duration": 120,
                     "startTime": "2024-07-20T15:30"
                   },
                   {
                     "subtasks": {},
+                    "id": 4,
                     "name": "Эпик 2",
                     "description": "Тест эпик 2",
-                    "id": 4,
                     "status": "NEW",
                     "duration": 0
                   }
@@ -298,9 +298,9 @@ public class HttpTaskServerTest {
 
         String expectedBody = """
                 {
+                  "id": 1,
                   "name": "Таск 1",
                   "description": "Тест таск 1",
-                  "id": 1,
                   "status": "NEW",
                   "duration": 5,
                   "startTime": "2024-07-26T12:00"
@@ -326,26 +326,26 @@ public class HttpTaskServerTest {
                   "subtasks": {
                     "2": {
                       "epicId": 1,
+                      "id": 2,
                       "name": "1-я подзадача",
                       "description": "описание 1",
-                      "id": 2,
                       "status": "NEW",
                       "duration": 30,
                       "startTime": "2024-07-20T15:30"
                     },
                     "3": {
                       "epicId": 1,
+                      "id": 3,
                       "name": "2-я подзадача",
                       "description": "описание 2",
-                      "id": 3,
                       "status": "NEW",
                       "duration": 90,
                       "startTime": "2024-07-20T16:30"
                     }
                   },
+                  "id": 1,
                   "name": "Эпик 1",
                   "description": "Тест эпик 1",
-                  "id": 1,
                   "status": "NEW",
                   "duration": 120,
                   "startTime": "2024-07-20T15:30"
@@ -368,9 +368,9 @@ public class HttpTaskServerTest {
         String expectedBody = """
                 {
                   "epicId": 1,
+                  "id": 2,
                   "name": "1-я подзадача",
                   "description": "описание 1",
-                  "id": 2,
                   "status": "NEW",
                   "duration": 30,
                   "startTime": "2024-07-20T15:30"
@@ -392,13 +392,13 @@ public class HttpTaskServerTest {
         URI urlUpdate = URI.create("http://localhost:8080/TaskManager/tasks/1");
         HttpRequest requestUpdate = getRequestPOST(taskJsonUpdate, urlUpdate);
         HttpResponse<String> responseUpdate = client.send(requestUpdate, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, responseUpdate.statusCode(), "Неверный код ответа");
+        assertEquals(200, responseUpdate.statusCode(), "Неверный код ответа");
 
         String expectedBody = """
                 {
+                  "id": 1,
                   "name": "Задача 2",
                   "description": "Задача 2",
-                  "id": 1,
                   "status": "NEW",
                   "duration": 90,
                   "startTime": "2024-07-20T16:30"
@@ -420,14 +420,14 @@ public class HttpTaskServerTest {
         URI urlUpdate = URI.create("http://localhost:8080/TaskManager/epics/1");
         HttpRequest requestUpdate = getRequestPOST(taskJsonUpdate, urlUpdate);
         HttpResponse<String> responseUpdate = client.send(requestUpdate, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, responseUpdate.statusCode(), "Неверный код ответа");
+        assertEquals(200, responseUpdate.statusCode(), "Неверный код ответа");
 
         String expectedBody = """
                 {
                   "subtasks": {},
+                  "id": 1,
                   "name": "Задача 2",
                   "description": "Задача 2",
-                  "id": 1,
                   "status": "NEW",
                   "duration": 0
                 }""";
@@ -496,7 +496,7 @@ public class HttpTaskServerTest {
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/1");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
         HttpResponse<String> responseDelete = client.send(requestDelete, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, responseDelete.statusCode(), "Неверный код ответа");
+        assertEquals(204, responseDelete.statusCode(), "Неверный код ответа");
 
         List<Task> tasksFromManagerDelete = manager.getAllTasks();
 
@@ -513,7 +513,7 @@ public class HttpTaskServerTest {
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/epics/1");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
         HttpResponse<String> responseDelete = client.send(requestDelete, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, responseDelete.statusCode(), "Неверный код ответа");
+        assertEquals(204, responseDelete.statusCode(), "Неверный код ответа");
 
         List<Epic> tasksFromManagerDelete = manager.getAllEpics();
 
@@ -531,7 +531,7 @@ public class HttpTaskServerTest {
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
 
         HttpResponse<String> responseDelete = client.send(requestDelete, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, responseDelete.statusCode(), "Неверный код ответа");
+        assertEquals(204, responseDelete.statusCode(), "Неверный код ответа");
 
         List<Subtask> tasksFromManagerDelete = manager.getAllSubtasks();
 
@@ -554,34 +554,34 @@ public class HttpTaskServerTest {
                  [
                    {
                      "epicId": 1,
+                     "id": 2,
                      "name": "1-я подзадача",
                      "description": "описание 1",
-                     "id": 2,
                      "status": "NEW",
                      "duration": 30,
                      "startTime": "2024-07-20T15:30"
                    },
                    {
                      "epicId": 1,
+                     "id": 3,
                      "name": "2-я подзадача",
                      "description": "описание 2",
-                     "id": 3,
                      "status": "NEW",
                      "duration": 90,
                      "startTime": "2024-07-20T16:30"
                    },
                    {
+                     "id": 4,
                      "name": "Таск 1",
                      "description": "Тест таск 1",
-                     "id": 4,
                      "status": "NEW",
                      "duration": 5,
                      "startTime": "2024-07-26T12:00"
                    },
                    {
+                     "id": 5,
                      "name": "Таск 2",
                      "description": "Тест таск 2",
-                     "id": 5,
                      "status": "NEW",
                      "duration": 5,
                      "startTime": "2024-07-26T13:00"
@@ -593,7 +593,7 @@ public class HttpTaskServerTest {
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/4");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
         HttpResponse<String> responseDelete = client.send(requestDelete, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, responseDelete.statusCode(), "Неверный код ответа");
+        assertEquals(204, responseDelete.statusCode(), "Неверный код ответа");
 
         URI url2 = URI.create("http://localhost:8080/TaskManager/prioritized");
         HttpRequest request2 = getRequestGET(url2);
@@ -604,26 +604,26 @@ public class HttpTaskServerTest {
                  [
                    {
                      "epicId": 1,
+                     "id": 2,
                      "name": "1-я подзадача",
                      "description": "описание 1",
-                     "id": 2,
                      "status": "NEW",
                      "duration": 30,
                      "startTime": "2024-07-20T15:30"
                    },
                    {
                      "epicId": 1,
+                     "id": 3,
                      "name": "2-я подзадача",
                      "description": "описание 2",
-                     "id": 3,
                      "status": "NEW",
                      "duration": 90,
                      "startTime": "2024-07-20T16:30"
                    },
                    {
+                     "id": 5,
                      "name": "Таск 2",
                      "description": "Тест таск 2",
-                     "id": 5,
                      "status": "NEW",
                      "duration": 5,
                      "startTime": "2024-07-26T13:00"
@@ -662,9 +662,9 @@ public class HttpTaskServerTest {
         String expectedBody = """
                  [
                    {
+                     "id": 4,
                      "name": "Таск 1",
                      "description": "Тест таск 1",
-                     "id": 4,
                      "status": "NEW",
                      "duration": 5,
                      "startTime": "2024-07-26T12:00"
@@ -673,35 +673,35 @@ public class HttpTaskServerTest {
                      "subtasks": {
                        "2": {
                          "epicId": 1,
+                         "id": 2,
                          "name": "1-я подзадача",
                          "description": "описание 1",
-                         "id": 2,
                          "status": "NEW",
                          "duration": 30,
                          "startTime": "2024-07-20T15:30"
                        },
                        "3": {
                          "epicId": 1,
+                         "id": 3,
                          "name": "2-я подзадача",
                          "description": "описание 2",
-                         "id": 3,
                          "status": "NEW",
                          "duration": 90,
                          "startTime": "2024-07-20T16:30"
                        }
                      },
+                     "id": 1,
                      "name": "Эпик 1",
                      "description": "Тест эпик 1",
-                     "id": 1,
                      "status": "NEW",
                      "duration": 120,
                      "startTime": "2024-07-20T15:30"
                    },
                    {
                      "epicId": 1,
+                     "id": 2,
                      "name": "1-я подзадача",
                      "description": "описание 1",
-                     "id": 2,
                      "status": "NEW",
                      "duration": 30,
                      "startTime": "2024-07-20T15:30"
@@ -713,7 +713,7 @@ public class HttpTaskServerTest {
         URI urlDelete = URI.create("http://localhost:8080/TaskManager/tasks/4");
         HttpRequest requestDelete = getRequestDELETE(urlDelete);
         HttpResponse<String> responseDelete = client.send(requestDelete, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, responseDelete.statusCode(), "Неверный код ответа");
+        assertEquals(204, responseDelete.statusCode(), "Неверный код ответа");
 
         URI url2 = URI.create("http://localhost:8080/TaskManager/history");
         HttpRequest request2 = getRequestGET(url2);
@@ -726,35 +726,35 @@ public class HttpTaskServerTest {
                      "subtasks": {
                        "2": {
                          "epicId": 1,
+                         "id": 2,
                          "name": "1-я подзадача",
                          "description": "описание 1",
-                         "id": 2,
                          "status": "NEW",
                          "duration": 30,
                          "startTime": "2024-07-20T15:30"
                        },
                        "3": {
                          "epicId": 1,
+                         "id": 3,
                          "name": "2-я подзадача",
                          "description": "описание 2",
-                         "id": 3,
                          "status": "NEW",
                          "duration": 90,
                          "startTime": "2024-07-20T16:30"
                        }
                      },
+                     "id": 1,
                      "name": "Эпик 1",
                      "description": "Тест эпик 1",
-                     "id": 1,
                      "status": "NEW",
                      "duration": 120,
                      "startTime": "2024-07-20T15:30"
                    },
                    {
                      "epicId": 1,
+                     "id": 2,
                      "name": "1-я подзадача",
                      "description": "описание 1",
-                     "id": 2,
                      "status": "NEW",
                      "duration": 30,
                      "startTime": "2024-07-20T15:30"

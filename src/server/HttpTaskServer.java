@@ -24,12 +24,6 @@ public class HttpTaskServer {
         start();
     }
 
-
-
-
-
-
-
     public static void start() throws IOException {
         httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress(8080), 0);

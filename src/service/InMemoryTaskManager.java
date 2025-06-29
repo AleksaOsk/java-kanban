@@ -106,7 +106,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask createSubtask(Subtask newSubtask) {
-        // сначала проверяем что такой epic есть, потом вроверяем пересечение
+        // сначала проверяем что такой epic есть, потом проверяем пересечение
         if (epics.containsKey(newSubtask.getEpicId())) {
             if (timeConflict(newSubtask)) {
                 return null;
