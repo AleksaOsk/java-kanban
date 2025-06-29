@@ -56,9 +56,9 @@ public class EpicHttpHandler extends TaskHttpHandler {
                 epic.setId(Integer.valueOf(pathArray[3]));
                 Epic updateEpic = taskManager.updateEpic(epic);
                 if (updateEpic != null) {
-                    writeResponse(updateEpic, exchange, 201);
+                    writeResponse(updateEpic, exchange, 200);
                 } else {
-                    writeResponse("Такого эпика нет", exchange, 406);
+                    writeResponse("Такого эпика нет", exchange, 404);
                 }
             }
         }

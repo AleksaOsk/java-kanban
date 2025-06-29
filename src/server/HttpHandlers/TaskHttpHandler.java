@@ -37,16 +37,16 @@ public class TaskHttpHandler extends BaseHttpHandler {
             if (createdTask != null) {
                 writeResponse(createdTask, exchange, 201);
             } else {
-                writeResponse("Задача пересекается с существующими, распредилите время корректней", exchange, 406);
+                writeResponse("Задача пересекается с существующими, распределите время корректней", exchange, 409);
             }
         } else if (pathArray.length == 4) {
             task.setId(Integer.valueOf(pathArray[3]));
             Task updateTask = update(type, task);
             //если метод апдейта задачи/подзадачи возвращает null, значит задача пересекается по времени с созданной задачей
             if (updateTask != null) {
-                writeResponse(updateTask, exchange, 201);
+                writeResponse(updateTask, exchange, 200);
             } else {
-                writeResponse("Задача пересекается с существующими, распредилите время корректней", exchange, 406);
+                writeResponse("Задача пересекается с существующими, распределите время корректней", exchange, 409);
             }
         }
     }
@@ -56,7 +56,7 @@ public class TaskHttpHandler extends BaseHttpHandler {
             case tasks -> {
                 if (taskManager.getTaskById(Integer.valueOf(pathArray[3])) != null) {
                     taskManager.removeTaskById(Integer.valueOf(pathArray[3]));
-                    writeResponse("Задача удалена", exchange, 200);
+                    writeResponse("Задача удалена", exchange, 204);
                 } else {
                     writeResponse("Такой задачи нет", exchange, 404);
                 }
@@ -64,7 +64,7 @@ public class TaskHttpHandler extends BaseHttpHandler {
             case subtasks -> {
                 if (taskManager.getSubtaskById(Integer.valueOf(pathArray[3])) != null) {
                     taskManager.removeSubtaskById(Integer.valueOf(pathArray[3]));
-                    writeResponse("Подзадача удалена", exchange, 200);
+                    writeResponse("Подзадача удалена", exchange, 204);
                 } else {
                     writeResponse("Такой подзадачи нет", exchange, 404);
                 }
@@ -72,7 +72,7 @@ public class TaskHttpHandler extends BaseHttpHandler {
             case epics -> {
                 if (taskManager.getEpicById(Integer.valueOf(pathArray[3])) != null) {
                     taskManager.removeEpicById(Integer.valueOf(pathArray[3]));
-                    writeResponse("Эпик удален", exchange, 200);
+                    writeResponse("Эпик удален", exchange, 204);
                 } else {
                     writeResponse("Такого эпика нет", exchange, 404);
                 }
